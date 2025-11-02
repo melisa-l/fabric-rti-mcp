@@ -1,0 +1,17 @@
+
+{
+  "mcp": {
+    "servers": {
+      "fabric-rti": {
+        "command": "uvx",
+        "args": ["microsoft-fabric-rti-mcp"],
+        "env": {
+          "KUSTO_SERVICE_URI": "${KUSTO_SERVICE_URI}",
+          "KUSTO_SERVICE_DEFAULT_DB": "Samples",
+          "AZ_OPENAI_EMBEDDING_ENDPOINT": "${AZURE_OPENAI_ENDPOINT}"
+        }
+      }
+    }
+  }
+}
+
