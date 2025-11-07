@@ -1,3 +1,4 @@
+
 import os
 import signal
 import sys
@@ -16,6 +17,7 @@ from fabric_rti_mcp.common import logger
 from fabric_rti_mcp.activator import activator_tools
 from fabric_rti_mcp.eventstream import eventstream_tools
 from fabric_rti_mcp.kusto import kusto_config, kusto_tools
+# ✅ No need to import lakehouse_sql_query explicitly if using @tool decorator
 
 # Global variable to store server start time
 server_start_time = datetime.now(timezone.utc)
@@ -25,24 +27,11 @@ def setup_shutdown_handler(sig: int, frame: Optional[types.FrameType]) -> None:
     """Handle process termination signals."""
     signal_name = signal.Signals(sig).name
     logger.info(f"Received signal {sig} ({signal_name}), shutting down...")
-
-    # Exit the process
     sys.exit(0)
 
 
-def register_tools(mcp: FastMCP) -> None:
-    """Register all tools with the MCP server."""
-    logger.info("Kusto configuration keys found in environment:")
-    logger.info(", ".join(kusto_config.KustoConfig.existing_env_vars()))
-
-    kusto_tools.register_tools(mcp)
-    eventstream_tools.register_tools(mcp)
-    activator_tools.register_tools(mcp)
-
-
-# Health check function defined at module level
+# Health check endpoint
 async def health_check(request: Request) -> JSONResponse:
-    """Health check endpoint."""
     current_time = datetime.now(timezone.utc)
     logger.info(f"Server health check at {current_time}")
     return JSONResponse(
@@ -57,20 +46,31 @@ async def health_check(request: Request) -> JSONResponse:
 
 def add_health_endpoint(mcp: FastMCP) -> None:
     """Add health endpoint for Kubernetes liveness probes."""
-    # Register the pre-defined health check function
     mcp.custom_route("/health", methods=["GET"])(health_check)
+
+
+def register_tools(mcp: FastMCP) -> None:
+    """Register all tools with the MCP server."""
+    logger.info("Registering tools...")
+    logger.info("Kusto configuration keys found in environment:")
+    logger.info(", ".join(kusto_config.KustoConfig.existing_env_vars()))
+
+    # Register existing tools
+    kusto_tools.register_tools(mcp)
+    eventstream_tools.register_tools(mcp)
+    activator_tools.register_tools(mcp)
+
+    # ✅ Lakehouse SQL tool will auto-register via @tool decorator in lakehouse_sql_tool.py
+    logger.info("Lakehouse SQL Tool will be loaded if @tool decorator is applied.")
 
 
 def main() -> None:
     """Main entry point for the server."""
     try:
-        # Set up signal handlers for graceful shutdown
-        signal.signal(signal.SIGINT, setup_shutdown_handler)  # Signal Interrupt)
-        signal.signal(signal.SIGTERM, setup_shutdown_handler)  # Signal Terminate
+        # Signal handlers for graceful shutdown
+        signal.signal(signal.SIGINT, setup_shutdown_handler)
+        signal.signal(signal.SIGTERM, setup_shutdown_handler)
 
-        # Set up logging to stderr because stdout is used for stdio transport
-        # writing to stderr because stdout is used for the transport
-        # and we want to see the logs in the console
         logger.info("Starting Fabric RTI MCP server")
         logger.info(f"Version: {__version__}")
         logger.info(f"Python version: {sys.version}")
@@ -85,11 +85,6 @@ def main() -> None:
             logger.info(f"Stateless HTTP: {config.stateless_http}")
             logger.info(f"Use OBO flow: {config.use_obo_flow}")
 
-        # TODO: Add telemetry configuration here
-
-        if config.use_obo_flow and (not obo_config.entra_app_client_id or not obo_config.umi_client_id):
-            raise ValueError("OBO flow is enabled but required client IDs are missing")
-
         name = "fabric-rti-mcp-server"
         if config.transport == "http":
             fastmcp_server = FastMCP(
@@ -102,18 +97,16 @@ def main() -> None:
         else:
             fastmcp_server = FastMCP(name)
 
-        # 1. Register tools
+        # Register tools
         register_tools(fastmcp_server)
 
-        # 2. Add HTTP-specific features if in HTTP mode
+        # Add HTTP-specific features if in HTTP mode
         if config.transport == "http":
             add_health_endpoint(fastmcp_server)
             logger.info("Adding authorization middleware")
             add_auth_middleware(fastmcp_server)
 
-        # TBD - Add telemetry
-
-        # 3. Run the server with the specified transport
+        # Run the server
         if config.transport == "http":
             logger.info(f"Starting {name} (HTTP) on {config.http_host}:{config.http_port} with /health endpoint")
             fastmcp_server.run(transport="streamable-http")
