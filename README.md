@@ -37,12 +37,21 @@ The Fabric RTI MCP Server acts as a bridge between AI agents and Microsoft Fabri
 - "Analyze the StormEvents to come up with trend analysis across past 10 years of data"
 - "Analyze the commands in 'CommandExecution' table and categorize them as low/medium/high risks"
 
+**SQL Lakehouse Analytics:**
+- "What tables are in my SQL lakehouse?"
+- "Show me the schema of table 'MyTable' in the lakehouse"
+- "List all tables and their columns in my lakehouse"
+
 **Eventstream Management:**
 - "List all Eventstreams in my workspace"
 - "Show me the details of my IoT data Eventstream"
 
 
 ### Available tools 
+
+#### SQL Lakehouse - 2 Tools:
+- **`sql_list_lakehouse_tables`** - List all tables in a Fabric SQL lakehouse
+- **`sql_get_table_schema`** - Get detailed schema information for a specific table in the lakehouse
 
 #### Eventhouse (Kusto) - 12 Tools:
 - **`kusto_known_services`** - List all available Kusto services configured in the MCP
@@ -195,6 +204,8 @@ None - the server will work with default settings for demo purposes.
 | `KUSTO_ALLOW_UNKNOWN_SERVICES` | Kusto | Security setting to allow connections to services not in `KUSTO_KNOWN_SERVICES` | `true` | `true` or `false` |
 | `FABRIC_API_BASE` | Global | Base URL for Microsoft Fabric API | `https://api.fabric.microsoft.com/v1` | `https://api.fabric.microsoft.com/v1` |
 | `FABRIC_BASE_URL` | Global | Base URL for Microsoft Fabric web interface | `https://fabric.microsoft.com` | `https://fabric.microsoft.com` |
+| `SQL_LAKEHOUSE_ENDPOINT` | SQL | SQL lakehouse endpoint URL | None | `your-lakehouse.sql.azuresynapse.net` |
+| `SQL_LAKEHOUSE_DATABASE` | SQL | Default database name for SQL lakehouse | None | `your_database_name` |
 
 ### Embedding Endpoint Configuration
 
