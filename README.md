@@ -1,4 +1,5 @@
-[![Install with UVX in VS Code](https://img.shields.io/badge/VS_Code-Install_Microsoft_Fabric_RTI_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ms-fabric-rti&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22microsoft-fabric-rti-mcp%22%5D%7D) [![PyPI Downloads](https://static.pepy.tech/badge/microsoft-fabric-rti-mcp)](https://pepy.tech/projects/microsoft-fabric-rti-mcp)
+[![Install with UVX in VS Code](https://img.shields.io/badge/VS_Code-Install_Microsoft_Fabric_RTI_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ms-fabric-rti&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22microsoft-fabric-rti-mcp%22%5D%7D) [![GitHub](https://img.shields.io/badge/GitHub-fabric--rti--mcp-181717?style=flat-square&logo=github)](https://github.com/melisa-l/fabric-rti-mcp) [![PyPI Downloads](https://static.pepy.tech/badge/microsoft-fabric-rti-mcp)](https://pepy.tech/projects/microsoft-fabric-rti-mcp)
+
 ## 🎯 Overview
 
 A Model Context Protocol (MCP) server implementation for [Microsoft Fabric Real-Time Intelligence (RTI)](https://aka.ms/fabricrti). 
@@ -6,6 +7,12 @@ This server enables AI agents to interact with Fabric RTI services by providing 
 
 > [!NOTE]  
 > This project is in Public Preview and implementation may significantly change prior to General Availability.
+
+### 📦 Installation Options
+
+- **🚀 Quick Start (GitHub)**: Clone and install locally for latest features - [See 5-minute guide](QUICKSTART.md) or [detailed instructions below](#-install-from-github-recommended-for-development)
+- **📦 PyPI Package**: Install via pip for stable releases - [See PyPI instructions](#-alternative-install-from-pypi-pip)
+- **🔧 Development**: Full setup for contributing and debugging - [See debugging guide](#-debugging-the-mcp-server-locally)
 
 ### 🔍 How It Works
 
@@ -87,73 +94,96 @@ or, check here for [other install options](https://docs.astral.sh/uv/getting-sta
 
 4. Open VS Code in an empty folder
 
+## 📦 Installation
 
-### Install from PyPI (Pip)
-The Fabric RTI MCP Server is available on [PyPI](https://pypi.org/project/microsoft-fabric-rti-mcp/), so you can install it using pip. This is the easiest way to install the server.
+### 🔧 Install from GitHub (Recommended for Development)  
+
+If you want to use the latest version or contribute to development, you can install directly from the GitHub repository:
+
+#### Quick Setup Steps:
+
+1. **Prerequisites**
+   - Python 3.10+ installed and added to PATH
+   - `uv` package manager installed (see installation steps above)
+   - VS Code with GitHub Copilot extensions
+
+2. **Clone the Repository**
+   ```bash
+   git clone https://github.com/melisa-l/fabric-rti-mcp.git
+   cd fabric-rti-mcp
+   ```
+
+3. **Install Dependencies**
+   ```bash
+   pip install -e .
+   ```
+   Or using uv:
+   ```bash
+   uv pip install -e .
+   ```
+
+4. **Configure VS Code**
+   Add the following to your `settings.json` or `mcp.json` file:
+   - Press `Ctrl+Shift+P` and search for "Preferences: Open User Settings (JSON)"
+   - Add the MCP server configuration below
+   - **Important**: Update the `--directory` path to match where you cloned the repository
+
+   - **Important**: Update the `--directory` path to match where you cloned the repository
+
+   **Example configuration:**
+   ```json
+   {
+       "mcp": {
+           "servers": {
+               "fabric-rti-mcp": {
+                   "command": "uv",
+                   "args": [
+                       "--directory",
+                       "C:/Users/YourUsername/fabric-rti-mcp/",
+                       "run",
+                       "-m",
+                       "fabric_rti_mcp.server"
+                   ],
+                   "env": {
+                       "KUSTO_SERVICE_URI": "https://help.kusto.windows.net/",
+                       "KUSTO_SERVICE_DEFAULT_DB": "Samples",
+                       "FABRIC_SQL_ENDPOINT": "your-lakehouse.datawarehouse.fabric.microsoft.com",
+                       "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
+                   }
+               }
+           }
+       }
+   }
+   ```
+
+5. **Configure Environment Variables (Optional)**
+   - `KUSTO_SERVICE_URI`: Your Eventhouse cluster URI
+   - `KUSTO_SERVICE_DEFAULT_DB`: Default database for queries
+   - `FABRIC_SQL_ENDPOINT`: SQL endpoint for your Fabric lakehouse (for SQL tools)
+   - `FABRIC_LAKEHOUSE_NAME`: Name of your lakehouse database (for SQL tools)
+
+6. **Restart VS Code**
+   - Close and reopen VS Code for the MCP server to be recognized
+   - The server will automatically start when you use Copilot in Agent mode
+
+#### Verify Installation:
+1. Open GitHub Copilot Chat and switch to Agent mode
+2. Type "@workspace /tools" to see available MCP tools
+3. You should see tools from fabric-rti-mcp (Kusto, Eventstreams, SQL Lakehouse)
+4. Try a test query: "List my Kusto databases"
+
+---
+
+### 🔧 Alternative: Install from PyPI (Pip)
+The Fabric RTI MCP Server is also available on [PyPI](https://pypi.org/project/microsoft-fabric-rti-mcp/):
 
 #### From VS Code
-    1. Open the command palette (Ctrl+Shift+P) and run the command `MCP: Add Server`
-    2. Select install from Pip
-    3. When prompted, enter the package name `microsoft-fabric-rti-mcp`
-    4. Follow the prompts to install the package and add it to your settings.json or your mcp.json file
+1. Open command palette (`Ctrl+Shift+P`) and run `MCP: Add Server`
+2. Select "Install from Pip"
+3. Enter package name: `microsoft-fabric-rti-mcp`
+4. Follow the prompts to configure
 
-The process should end with the below settings in your `settings.json` or your `mcp.json` file.
-
-#### settings.json
-```json
-{
-    "mcp": {
-        "server": {
-            "fabric-rti-mcp": {
-                "command": "uvx",
-                "args": [
-                    "microsoft-fabric-rti-mcp"
-                ],
-                "env": {
-                    "KUSTO_SERVICE_URI": "https://help.kusto.windows.net/",
-                    "KUSTO_SERVICE_DEFAULT_DB": "Samples"
-                }
-            }
-        }
-    }
-}
-```
-
-> **Note**: All environment variables are optional. The `KUSTO_SERVICE_URI` and `KUSTO_SERVICE_DEFAULT_DB` provide default cluster and database settings. The `AZ_OPENAI_EMBEDDING_ENDPOINT` is only needed for semantic search functionality in the `kusto_get_shots` tool.
-
-### 🔧 Manual Install (Install from source)  
-
-1. Make sure you have Python 3.10+ installed properly and added to your PATH.
-2. Clone the repository
-3. Install the dependencies (`pip install .` or `uv tool install .`)
-4. Add the settings below into your vscode `settings.json` or your `mcp.json` file. 
-5. Modify the path to match the repo location on your machine.
-6. Modify the cluster uri in the settings to match your cluster.
-7. Modify the cluster default database in the settings to match your database.
-8. Modify the embeddings endpoint in the settings to match yours. This step is optional and needed only in case you supply a shots table
-
-```json
-{
-    "mcp": {
-        "servers": {
-            "fabric-rti-mcp": {
-                "command": "uv",
-                "args": [
-                    "--directory",
-                    "C:/path/to/fabric-rti-mcp/",
-                    "run",
-                    "-m",
-                    "fabric_rti_mcp.server"
-                ],
-                "env": {
-                    "KUSTO_SERVICE_URI": "https://help.kusto.windows.net/",
-                    "KUSTO_SERVICE_DEFAULT_DB": "Samples"
-                }
-            }
-        }
-    }
-}
-```
+The process will add these settings to your `settings.json`:
 
 ## 🐛 Debugging the MCP Server locally
 Assuming you have python installed and the repo cloned:

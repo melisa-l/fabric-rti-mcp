@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "microsoft-fabric-rti-mcp"
+name = "fabric-rti-lakehouse-mcp"
 dynamic = ["version"]
-description = "Microsoft Fabric RTI MCP"
+description = "Microsoft Fabric RTI MCP with Lakehouse SQL Tools"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -36,7 +36,7 @@ dev = [
 ]
 
 [project.scripts]
-microsoft-fabric-rti-mcp = "fabric_rti_mcp.server:main"
+fabric-rti-lakehouse-mcp = "fabric_rti_mcp.server:main"
 
 [project.urls]
 Homepage = "https://github.com/microsoft/fabric-rti-mcp"
