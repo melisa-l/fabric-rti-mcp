@@ -17,21 +17,19 @@ Before starting, make sure you have:
 
 ---
 
-## 🎯 Choose Your Installation Method
+## 🎯 Installation Overview
 
-### Option A: Quick Install (Recommended - 5 minutes)
-Install directly from PyPI - no Git or Python knowledge needed!
+We'll be using VS Code's built-in MCP configuration system. The setup involves:
+1. Installing prerequisites (Python, uv)
+2. Getting your Fabric connection details
+3. Adding the MCP server through VS Code's command palette
+4. Testing the connection
 
-**Best for:** Most users who just want to use the MCP server
-
-### Option B: Developer Install (10 minutes)
-Clone from GitHub for latest features and development
-
-**Best for:** Contributors or those wanting cutting-edge features
+**No manual JSON editing required!** VS Code will create the `mcp.json` file for you.
 
 ---
 
-# Option A: Quick Install from PyPI
+# Step-by-Step Installation
 
 ## Step 1: Install Prerequisites
 
@@ -90,37 +88,46 @@ You need two pieces of information from your Microsoft Fabric workspace:
 
 ## Step 3: Configure VS Code
 
-### 3.1 Open VS Code Settings
+### 3.1 Add MCP Server Using VS Code Command
+
+The easiest way:
+
 1. Open VS Code
 2. Press **`Ctrl+Shift+P`** to open Command Palette
-3. Type: **"Preferences: Open User Settings (JSON)"**
-4. Press Enter
+3. Type: **"MCP: Add Server"**
+4. Select **"Install from Pip"**
+5. Enter package name: **`fabric-lakehouse-mcp`**
+6. When prompted for environment variables, add your connection details
 
-This opens your `settings.json` file.
+### 3.2 Manual Configuration (Alternative)
 
-### 3.2 Add MCP Server Configuration
+If you prefer to configure manually, create/edit the MCP configuration file:
 
-**Copy and paste this entire block** into your `settings.json`:
+**Windows:** `%APPDATA%\Code\User\globalStorage\mcp.json`  
+**Mac/Linux:** `~/.config/Code/User/globalStorage/mcp.json`
+
+**Copy and paste this entire block** into your `mcp.json`:
+
+**Copy and paste this entire block** into your `mcp.json`:
 
 ```json
 {
-    "github.copilot.chat.mcp.enabled": true,
-    "mcp": {
-        "servers": {
-            "fabric-lakehouse": {
-                "command": "uvx",
-                "args": [
-                    "fabric-lakehouse-mcp"
-                ],
-                "env": {
-                    "FABRIC_SQL_ENDPOINT": "YOUR-WORKSPACE.datawarehouse.fabric.microsoft.com",
-                    "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
-                }
+    "mcpServers": {
+        "fabric-lakehouse": {
+            "command": "uvx",
+            "args": [
+                "fabric-lakehouse-mcp"
+            ],
+            "env": {
+                "FABRIC_SQL_ENDPOINT": "YOUR-WORKSPACE.datawarehouse.fabric.microsoft.com",
+                "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
             }
         }
     }
 }
 ```
+
+> **Note:** The MCP configuration should be in `mcp.json`, NOT in `settings.json`. VS Code will warn you if you try to add it to `settings.json`.
 
 ### 3.3 Update With Your Information
 
@@ -225,38 +232,37 @@ Same as Option A - Step 2 above.
 
 ## Step 4: Configure VS Code
 
-### 4.1 Open VS Code Settings
-1. Press **`Ctrl+Shift+P`**
-2. Type: **"Preferences: Open User Settings (JSON)"**
-3. Press Enter
+### 4.1 Configure MCP Server
 
-### 4.2 Add MCP Server Configuration
+Create/edit your MCP configuration file:
+
+**Windows:** `%APPDATA%\Code\User\globalStorage\mcp.json`  
+**Mac/Linux:** `~/.config/Code/User/globalStorage/mcp.json`
+
+**Add this configuration:**
 
 ```json
 {
-    "github.copilot.chat.mcp.enabled": true,
-    "mcp": {
-        "servers": {
-            "fabric-lakehouse": {
-                "command": "uv",
-                "args": [
-                    "--directory",
-                    "C:/Users/YourUsername/fabric-rti-mcp/",
-                    "run",
-                    "-m",
-                    "fabric_rti_mcp.server"
-                ],
-                "env": {
-                    "FABRIC_SQL_ENDPOINT": "YOUR-WORKSPACE.datawarehouse.fabric.microsoft.com",
-                    "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
-                }
+    "mcpServers": {
+        "fabric-lakehouse": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "C:/Users/YourUsername/fabric-rti-mcp/",
+                "run",
+                "-m",
+                "fabric_rti_mcp.server"
+            ],
+            "env": {
+                "FABRIC_SQL_ENDPOINT": "YOUR-WORKSPACE.datawarehouse.fabric.microsoft.com",
+                "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
             }
         }
     }
 }
 ```
 
-### 4.3 Update Configuration
+### 4.2 Update Configuration
 
 1. **Update the directory path**: Change `C:/Users/YourUsername/fabric-rti-mcp/` to where you cloned the repo
    - Use **forward slashes** (`/`) even on Windows
@@ -265,9 +271,9 @@ Same as Option A - Step 2 above.
 
 2. **Update connection details**: Same as Option A - replace `FABRIC_SQL_ENDPOINT` and `FABRIC_LAKEHOUSE_NAME`
 
-### 4.4 Save and Restart
+### 4.3 Save and Restart
 
-1. Save the file (Ctrl+S)
+1. Save the file
 2. Close and reopen VS Code
 
 ---
@@ -437,19 +443,19 @@ If you also want to query Eventhouse with KQL, add these to your `env` section:
 
 ## Your Settings Template (Copy & Paste)
 
+> **Important:** Use `mcp.json`, NOT `settings.json`!  
+> Location: `%APPDATA%\Code\User\globalStorage\mcp.json` (Windows) or `~/.config/Code/User/globalStorage/mcp.json` (Mac/Linux)
+
 **For PyPI Install:**
 ```json
 {
-    "github.copilot.chat.mcp.enabled": true,
-    "mcp": {
-        "servers": {
-            "fabric-lakehouse": {
-                "command": "uvx",
-                "args": ["fabric-lakehouse-mcp"],
-                "env": {
-                    "FABRIC_SQL_ENDPOINT": "your-endpoint.datawarehouse.fabric.microsoft.com",
-                    "FABRIC_LAKEHOUSE_NAME": "YourLakehouse"
-                }
+    "mcpServers": {
+        "fabric-lakehouse": {
+            "command": "uvx",
+            "args": ["fabric-lakehouse-mcp"],
+            "env": {
+                "FABRIC_SQL_ENDPOINT": "your-endpoint.datawarehouse.fabric.microsoft.com",
+                "FABRIC_LAKEHOUSE_NAME": "YourLakehouse"
             }
         }
     }
@@ -459,22 +465,19 @@ If you also want to query Eventhouse with KQL, add these to your `env` section:
 **For GitHub Clone:**
 ```json
 {
-    "github.copilot.chat.mcp.enabled": true,
-    "mcp": {
-        "servers": {
-            "fabric-lakehouse": {
-                "command": "uv",
-                "args": [
-                    "--directory",
-                    "C:/path/to/fabric-rti-mcp/",
-                    "run",
-                    "-m",
-                    "fabric_rti_mcp.server"
-                ],
-                "env": {
-                    "FABRIC_SQL_ENDPOINT": "your-endpoint.datawarehouse.fabric.microsoft.com",
-                    "FABRIC_LAKEHOUSE_NAME": "YourLakehouse"
-                }
+    "mcpServers": {
+        "fabric-lakehouse": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "C:/path/to/fabric-rti-mcp/",
+                "run",
+                "-m",
+                "fabric_rti_mcp.server"
+            ],
+            "env": {
+                "FABRIC_SQL_ENDPOINT": "your-endpoint.datawarehouse.fabric.microsoft.com",
+                "FABRIC_LAKEHOUSE_NAME": "YourLakehouse"
             }
         }
     }
@@ -489,7 +492,8 @@ If you also want to query Eventhouse with KQL, add these to your `env` section:
 | Check uv installation | `uv --version` |
 | Install from PyPI | `pip install fabric-lakehouse-mcp` |
 | Clone from GitHub | `git clone https://github.com/melisa-l/fabric-rti-mcp.git` |
-| Open VS Code settings | `Ctrl+Shift+P` → "Preferences: Open User Settings (JSON)" |
+| Edit MCP config | Create/edit `%APPDATA%\Code\User\globalStorage\mcp.json` |
+| Add MCP server | `Ctrl+Shift+P` → "MCP: Add Server" |
 | Open Copilot Chat | `Ctrl+Alt+I` |
 | Check MCP tools | `@workspace /tools` in chat |
 | View MCP logs | `Ctrl+Shift+P` → "MCP: List Servers" → "Show Output" |

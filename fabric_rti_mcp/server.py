@@ -14,9 +14,6 @@ from fabric_rti_mcp import __version__
 from fabric_rti_mcp.authentication.auth_middleware import add_auth_middleware
 from fabric_rti_mcp.common import global_config as config
 from fabric_rti_mcp.common import logger
-from fabric_rti_mcp.activator import activator_tools
-from fabric_rti_mcp.eventstream import eventstream_tools
-from fabric_rti_mcp.kusto import kusto_config, kusto_tools
 from fabric_rti_mcp.tools import query_history_mcp_tools, lakehouse_sql_mcp_tools
 
 # Global variable to store server start time
@@ -38,7 +35,7 @@ async def health_check(request: Request) -> JSONResponse:
         {
             "status": "healthy",
             "current_time_utc": current_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
-            "server": "fabric-rti-mcp",
+            "server": "fabric-lakehouse-mcp",
             "start_time_utc": server_start_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
         }
     )
@@ -51,14 +48,9 @@ def add_health_endpoint(mcp: FastMCP) -> None:
 
 def register_tools(mcp: FastMCP) -> None:
     """Register all tools with the MCP server."""
-    logger.info("Registering tools...")
-    logger.info("Kusto configuration keys found in environment:")
-    logger.info(", ".join(kusto_config.KustoConfig.existing_env_vars()))
+    logger.info("Registering SQL Lakehouse and Query History tools...")
 
-    # Register existing tools
-    kusto_tools.register_tools(mcp)
-    eventstream_tools.register_tools(mcp)
-    activator_tools.register_tools(mcp)
+    # Register SQL Lakehouse tools
     query_history_mcp_tools.register_tools(mcp)
     lakehouse_sql_mcp_tools.register_tools(mcp)
 
@@ -72,7 +64,7 @@ def main() -> None:
         signal.signal(signal.SIGINT, setup_shutdown_handler)
         signal.signal(signal.SIGTERM, setup_shutdown_handler)
 
-        logger.info("Starting Fabric RTI MCP server")
+        logger.info("Starting Fabric Lakehouse MCP server")
         logger.info(f"Version: {__version__}")
         logger.info(f"Python version: {sys.version}")
         logger.info(f"Platform: {sys.platform}")
@@ -87,7 +79,7 @@ def main() -> None:
             logger.info(f"Stateless HTTP: {config.stateless_http}")
             logger.info(f"Use OBO flow: {config.use_obo_flow}")
 
-        name = "fabric-rti-mcp-server"
+        name = "fabric-lakehouse-mcp-server"
         if config.transport == "http":
             fastmcp_server = FastMCP(
                 name,

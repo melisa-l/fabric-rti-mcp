@@ -7,7 +7,7 @@ name = "fabric-lakehouse-mcp"
 dynamic = ["version"]
 description = "Microsoft Fabric Lakehouse MCP Server - SQL analytics tools for AI agents"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3.10",
@@ -19,9 +19,7 @@ classifiers = [
 dependencies = [
     "httpx~=0.28.1",
     "fastmcp~=2.5.0",
-    "azure-kusto-data~=5.0.0",
     "azure-identity~=1.23.0",
-    "azure-kusto-ingest~=5.0.0",
     "msal~=1.32.0",
     "pyodbc~=5.0.0"
 ]

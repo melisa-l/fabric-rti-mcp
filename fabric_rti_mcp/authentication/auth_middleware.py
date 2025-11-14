@@ -14,7 +14,6 @@ from fabric_rti_mcp.authentication.token_obo_exchanger import TokenOboExchanger
 from fabric_rti_mcp.common import global_config as config
 from fabric_rti_mcp.common import logger
 from fabric_rti_mcp.config.obo_config import obo_config
-from fabric_rti_mcp.kusto.kusto_connection import set_auth_token
 
 
 def extract_token_from_header(auth_header: str) -> str:
@@ -151,8 +150,8 @@ def add_auth_middleware(fastmcp: FastMCP) -> None:
                         status_code=401,
                     )
 
-                # Store the token for use by services
-                set_auth_token(token)
+                # Token is available for services that need it
+                # (SQL Lakehouse uses ActiveDirectoryInteractive, so doesn't need this)
 
                 token_payload = decode_jwt_token(token)
 
