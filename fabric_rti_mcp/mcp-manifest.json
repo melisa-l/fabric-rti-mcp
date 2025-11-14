@@ -1,6 +1,6 @@
 {
   "name": "fabric-lakehouse-mcp",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Microsoft Fabric Lakehouse MCP Server - SQL analytics tools for AI agents",
   "schema": "1.0",
   "command": {

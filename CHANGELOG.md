@@ -1,6 +1,12 @@
 # Release History
 
-## 0.3.7 (Upcoming)
+## 0.3.8 (Upcoming)
+### Documentation
+- Simplified documentation structure: one README, one quickstart guide, one MCP template
+- Removed duplicate and confusing documentation files
+- Fixed mcp-manifest.json command name to match actual pip-installed executable
+
+## 0.3.7 (2025-01-14)
 ### Breaking Changes
 - Removed all Kusto/Eventhouse/Eventstream functionality
 - Package is now focused exclusively on Fabric Lakehouse SQL tools
