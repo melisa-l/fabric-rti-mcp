@@ -1,0 +1,25 @@
+{
+	"servers": {
+		"fabric-lakehouse": {
+			"type": "stdio",
+			"command": "python",
+			"args": ["-m", "fabric_rti_mcp.server"],
+			"env": {
+				"FABRIC_SQL_ENDPOINT": "${input:fabric_sql_endpoint}",
+				"FABRIC_LAKEHOUSE_NAME": "${input:fabric_lakehouse_name}"
+			}
+		}
+	},
+	"inputs": [
+		{
+			"id": "fabric_sql_endpoint",
+			"type": "promptString",
+			"description": "Enter the SQL endpoint for your Fabric lakehouse (e.g., workspace.datawarehouse.fabric.microsoft.com)"
+		},
+		{
+			"id": "fabric_lakehouse_name",
+			"type": "promptString",
+			"description": "Enter the name of your Fabric lakehouse (case-sensitive)"
+		}
+	]
+}

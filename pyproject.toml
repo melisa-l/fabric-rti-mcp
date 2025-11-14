@@ -47,7 +47,7 @@ Documentation = "https://github.com/melisa-l/fabric-rti-mcp#readme"
 packages = ["fabric_rti_mcp"]
 
 [tool.setuptools.package-data]
-fabric_rti_mcp = ["bin/*"]
+fabric_rti_mcp = ["bin/*", "mcp-manifest.json"]
 
 [tool.black]
 line-length = 120
