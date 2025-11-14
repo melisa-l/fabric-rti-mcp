@@ -145,9 +145,7 @@ If you want to use the latest version or contribute to development, you can inst
                        "fabric_rti_mcp.server"
                    ],
                    "env": {
-                       "KUSTO_SERVICE_URI": "https://help.kusto.windows.net/",
-                       "KUSTO_SERVICE_DEFAULT_DB": "Samples",
-                       "FABRIC_SQL_ENDPOINT": "your-lakehouse.datawarehouse.fabric.microsoft.com",
+                       "FABRIC_SQL_ENDPOINT": "your-workspace-name.datawarehouse.fabric.microsoft.com",
                        "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
                    }
                }
@@ -156,11 +154,13 @@ If you want to use the latest version or contribute to development, you can inst
    }
    ```
 
-5. **Configure Environment Variables (Optional)**
-   - `KUSTO_SERVICE_URI`: Your Eventhouse cluster URI
-   - `KUSTO_SERVICE_DEFAULT_DB`: Default database for queries
-   - `FABRIC_SQL_ENDPOINT`: SQL endpoint for your Fabric lakehouse (for SQL tools)
-   - `FABRIC_LAKEHOUSE_NAME`: Name of your lakehouse database (for SQL tools)
+5. **Configure Environment Variables**
+   - **FABRIC_SQL_ENDPOINT** (Required): SQL endpoint for your Fabric lakehouse
+     - Find: Fabric Portal → Lakehouse → SQL endpoint → Copy Server value
+     - Format: `your-workspace-name.datawarehouse.fabric.microsoft.com`
+   - **FABRIC_LAKEHOUSE_NAME** (Required): Name of your lakehouse database
+   - **KUSTO_SERVICE_URI** (Optional): Your Eventhouse cluster URI for KQL queries
+   - **KUSTO_SERVICE_DEFAULT_DB** (Optional): Default database for Eventhouse queries
 
 6. **Restart VS Code**
    - Close and reopen VS Code for the MCP server to be recognized
@@ -169,8 +169,8 @@ If you want to use the latest version or contribute to development, you can inst
 #### Verify Installation:
 1. Open GitHub Copilot Chat and switch to Agent mode
 2. Type "@workspace /tools" to see available MCP tools
-3. You should see tools from fabric-rti-mcp (Kusto, Eventstreams, SQL Lakehouse)
-4. Try a test query: "List my Kusto databases"
+3. You should see tools from fabric-rti-mcp (SQL Lakehouse tools primarily)
+4. Try a test query: "What tables are in my lakehouse?"
 
 ---
 

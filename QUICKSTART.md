@@ -47,7 +47,7 @@ pip install -e .
    - Press Enter
 
 2. **Add MCP Configuration:**
-   Copy and paste this configuration, **replacing the path** with your actual repository location:
+   Copy and paste this configuration, **replacing the values** with your actual information:
 
    ```json
    {
@@ -63,8 +63,8 @@ pip install -e .
                        "fabric_rti_mcp.server"
                    ],
                    "env": {
-                       "KUSTO_SERVICE_URI": "https://help.kusto.windows.net/",
-                       "KUSTO_SERVICE_DEFAULT_DB": "Samples"
+                       "FABRIC_SQL_ENDPOINT": "your-workspace-name.datawarehouse.fabric.microsoft.com",
+                       "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
                    }
                }
            }
@@ -72,10 +72,13 @@ pip install -e .
    }
    ```
 
-3. **Update the Path:**
-   - Change `C:/Users/YourUsername/fabric-rti-mcp/` to your actual clone location
-   - Use forward slashes `/` even on Windows
-   - Make sure the path ends with a trailing slash `/`
+3. **Update the Configuration:**
+   - **Path**: Change `C:/Users/YourUsername/fabric-rti-mcp/` to where you cloned the repo
+     - Use forward slashes `/` even on Windows
+     - Make sure the path ends with a trailing slash `/`
+   - **SQL Endpoint**: Get from Fabric Portal → Your Lakehouse → Copy SQL endpoint
+     - Format: `your-workspace-name.datawarehouse.fabric.microsoft.com`
+   - **Lakehouse Name**: Your lakehouse database name (e.g., `MyLakehouse`)
 
 4. **Save and Restart VS Code**
 
@@ -93,47 +96,62 @@ pip install -e .
 
 4. **Test a Query:**
    ```
-   List my Kusto databases
+   What tables are in my lakehouse?
    ```
 
 If you see the tools and can execute queries, you're all set! 🎉
 
 ---
 
-## 🔧 Optional Configuration
+## 🔧 Finding Your Lakehouse Connection Details
 
-### Add Your Own Fabric Resources
+### FABRIC_SQL_ENDPOINT
+1. Open [Fabric Portal](https://app.fabric.microsoft.com/)
+2. Navigate to your Lakehouse
+3. Click **"SQL endpoint"** in the top ribbon
+4. Copy the **Server** value (looks like: `xxx.datawarehouse.fabric.microsoft.com`)
 
-Update the `env` section in your settings.json:
+### FABRIC_LAKEHOUSE_NAME
+1. In Fabric Portal, navigate to your Lakehouse
+2. The lakehouse name is shown in the title/breadcrumb
+3. Use this exact name in the configuration
+
+---
+
+## 🔧 Optional: Add Eventhouse (Kusto) Configuration
+
+If you also want to query Eventhouse with KQL, add these to the `env` section:
 
 ```json
 "env": {
+    "FABRIC_SQL_ENDPOINT": "your-workspace-name.datawarehouse.fabric.microsoft.com",
+    "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName",
     "KUSTO_SERVICE_URI": "https://your-cluster.kusto.windows.net/",
-    "KUSTO_SERVICE_DEFAULT_DB": "YourDatabase",
-    "FABRIC_SQL_ENDPOINT": "your-lakehouse.datawarehouse.fabric.microsoft.com",
-    "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
+    "KUSTO_SERVICE_DEFAULT_DB": "YourDatabase"
 }
 ```
 
 **Where to find these values:**
-- **KUSTO_SERVICE_URI**: Fabric Portal → Eventhouse → Copy cluster URI
-- **KUSTO_SERVICE_DEFAULT_DB**: Your default database name in Eventhouse
-- **FABRIC_SQL_ENDPOINT**: Fabric Portal → Lakehouse → SQL endpoint
-- **FABRIC_LAKEHOUSE_NAME**: Your lakehouse name
+- **FABRIC_SQL_ENDPOINT**: Fabric Portal → Lakehouse → SQL endpoint → Copy Server value
+- **FABRIC_LAKEHOUSE_NAME**: Your lakehouse name (shown in Fabric Portal)
+- **KUSTO_SERVICE_URI**: (Optional) Fabric Portal → Eventhouse → Copy cluster URI
+- **KUSTO_SERVICE_DEFAULT_DB**: (Optional) Your default database name in Eventhouse
 
 ---
 
 ## 🎯 Example Queries to Try
 
-**Eventhouse (KQL):**
+**SQL Lakehouse (Primary Focus):**
+- "What tables exist in my lakehouse?"
+- "Describe the schema of table 'Sales'"
+- "Show me sample data from the Customer table"
+- "Find relationships between tables in my lakehouse"
+- "List all columns in my lakehouse tables"
+
+**Eventhouse (KQL) - Optional if configured:**
 - "Show me sample data from StormEvents table"
 - "What databases are available in my Eventhouse?"
 - "Analyze storm patterns over the past decade"
-
-**SQL Lakehouse:**
-- "What tables exist in my lakehouse?"
-- "Describe the schema of table 'Sales'"
-- "Find relationships between tables"
 
 **Eventstreams:**
 - "List all Eventstreams in my workspace"
