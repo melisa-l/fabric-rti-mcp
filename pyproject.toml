@@ -35,7 +35,7 @@ dev = [
 ]
 
 [project.scripts]
-fabric-lakehouse-mcp = "fabric_rti_mcp.server:main"
+fabric-lakehouse = "fabric_rti_mcp.server:main"
 
 [project.urls]
 Homepage = "https://github.com/melisa-l/fabric-rti-mcp"
