@@ -17,6 +17,7 @@ from fabric_rti_mcp.common import logger
 from fabric_rti_mcp.activator import activator_tools
 from fabric_rti_mcp.eventstream import eventstream_tools
 from fabric_rti_mcp.kusto import kusto_config, kusto_tools
+from fabric_rti_mcp.tools import query_history_mcp_tools, lakehouse_sql_mcp_tools
 
 # Global variable to store server start time
 server_start_time = datetime.now(timezone.utc)
@@ -58,8 +59,10 @@ def register_tools(mcp: FastMCP) -> None:
     kusto_tools.register_tools(mcp)
     eventstream_tools.register_tools(mcp)
     activator_tools.register_tools(mcp)
+    query_history_mcp_tools.register_tools(mcp)
+    lakehouse_sql_mcp_tools.register_tools(mcp)
 
-    logger.info("Lakehouse SQL Tool will be loaded if @tool decorator is applied.")
+    logger.info("All tools registered successfully.")
 
 
 def main() -> None:
