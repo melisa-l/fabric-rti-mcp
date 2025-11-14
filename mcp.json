@@ -1,15 +1,12 @@
 
 {
-  "mcp": {
-    "servers": {
-      "fabric-rti": {
-        "command": "uvx",
-        "args": ["microsoft-fabric-rti-mcp"],
-        "env": {
-          "FABRIC_SQL_ENDPOINT": "${FABRIC_SQL_ENDPOINT}",
-          "FABRIC_LAKEHOUSE_NAME": "${FABRIC_LAKEHOUSE_NAME}",
-          "FABRIC_RTI_DEFAULT_MODEL": "gpt-5"
-        }
+  "mcpServers": {
+    "fabric-lakehouse": {
+      "command": "python",
+      "args": ["-m", "fabric_rti_mcp.server"],
+      "env": {
+        "FABRIC_SQL_ENDPOINT": "",
+        "FABRIC_LAKEHOUSE_NAME": ""
       }
     }
   }
