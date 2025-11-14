@@ -264,16 +264,62 @@ The `kusto_get_shots` tool retrieves shots that are most similar to your prompt 
 
 ## 🔑 Authentication
 
-The MCP Server seamlessly integrates with your host operating system's authentication mechanisms. We use Azure Identity via [`DefaultAzureCredential`](https://learn.microsoft.com/en-us/azure/developer/python/sdk/authentication/credential-chains?tabs=dac), which tries these authentication methods in order:
+The MCP Server uses Azure Identity via [`DefaultAzureCredential`](https://learn.microsoft.com/en-us/azure/developer/python/sdk/authentication/credential-chains?tabs=dac) for secure, seamless authentication with **automatic token caching** to avoid repeated authentication prompts.
+
+### Authentication Methods (in priority order):
 
 1. **Environment Variables** (`EnvironmentCredential`) - Perfect for CI/CD pipelines
-2. **Visual Studio** (`VisualStudioCredential`) - Uses your Visual Studio credentials
-3. **Azure CLI** (`AzureCliCredential`) - Uses your existing Azure CLI login
-4. **Azure PowerShell** (`AzurePowerShellCredential`) - Uses your Az PowerShell login
-5. **Azure Developer CLI** (`AzureDeveloperCliCredential`) - Uses your azd login
-6. **Interactive Browser** (`InteractiveBrowserCredential`) - Falls back to browser-based login if needed
+2. **Managed Identity** (`ManagedIdentityCredential`) - For Azure-hosted deployments
+3. **Visual Studio Code** (`VisualStudioCodeCredential`) - Uses your VS Code credentials
+4. **Azure CLI** (`AzureCliCredential`) - **⭐ RECOMMENDED** - Uses your existing Azure CLI login
+5. **Azure PowerShell** (`AzurePowerShellCredential`) - Uses your Az PowerShell login
+6. **Azure Developer CLI** (`AzureDeveloperCliCredential`) - Uses your azd login
+7. **Interactive Browser** (`InteractiveBrowserCredential`) - Falls back to browser-based login if needed
 
-If you're already logged in through any of these methods, the Fabric RTI MCP Server will automatically use those credentials.
+### 🎯 Recommended Setup: Azure CLI (No repeated authentication prompts!)
+
+The **Azure CLI method provides the best user experience** with automatic token caching:
+
+#### Install Azure CLI:
+
+**Windows:**
+```powershell
+winget install Microsoft.AzureCLI
+```
+Or download from: https://aka.ms/installazurecliwindows
+
+**Mac:**
+```bash
+brew install azure-cli
+```
+
+**Linux:**
+```bash
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+```
+
+#### Authenticate Once:
+```bash
+az login
+```
+
+**That's it!** The MCP server will automatically use these cached credentials for all queries. You'll never be prompted to authenticate again (unless the token expires, which is automatically refreshed).
+
+### How Token Caching Works
+
+- **First request**: Authenticates using your preferred method (Azure CLI recommended)
+- **Subsequent requests**: Automatically reuses the cached token
+- **Token expiration**: Automatically refreshed in the background
+- **Zero prompts**: Once authenticated, no more browser pop-ups or sign-in requests!
+
+### Alternative: Browser-Based Authentication
+
+If you don't install Azure CLI, the server will fall back to interactive browser authentication:
+- First query opens a browser for sign-in
+- Token is cached for the session
+- May require occasional re-authentication
+
+**For the smoothest experience, we strongly recommend using Azure CLI!**
 
 ## HTTP Mode Configuration for MCP Server
 

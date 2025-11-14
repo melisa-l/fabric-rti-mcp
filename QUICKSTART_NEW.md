@@ -38,7 +38,48 @@ We'll set up the MCP server using VS Code's command palette, which will:
    ```
    Should show: `Python 3.10.0` or higher
 
-## 1.2 Install uv Package Manager
+## 1.2 Install Azure CLI (Recommended)
+
+**Why?** Azure CLI provides seamless authentication without browser prompts.
+
+### Windows
+Download and install from: [Azure CLI for Windows](https://aka.ms/installazurecliwindows)
+
+Or via PowerShell:
+```powershell
+winget install Microsoft.AzureCLI
+```
+
+### Mac
+```bash
+brew install azure-cli
+```
+
+### Linux
+```bash
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+```
+
+**Verify installation:**
+```powershell
+az --version
+```
+
+### Authenticate with Azure CLI
+
+Run this command once to authenticate:
+```powershell
+az login
+```
+
+This will:
+1. Open your browser
+2. Ask you to sign in with your Microsoft account
+3. Cache your credentials locally
+
+**You only need to do this once!** The MCP server will automatically use these cached credentials for all future queries without prompting you again.
+
+## 1.3 Install uv Package Manager (Optional)
 
 Open PowerShell and run:
 ```powershell
@@ -50,7 +91,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 uv --version
 ```
 
-## 1.3 Install VS Code Extensions
+## 1.4 Install VS Code Extensions
 
 1. Open VS Code
 2. Press `Ctrl+Shift+X` (Extensions)
@@ -233,12 +274,23 @@ What tables are in my lakehouse?
 ```
 
 **What happens:**
+
+### If you installed Azure CLI and ran `az login`:
 1. Copilot will use the `lakehouse_list_tables` tool
-2. A browser window pops up for authentication
+2. Authentication happens automatically using cached Azure CLI credentials
+3. **No browser prompts!** 🎉
+4. You'll see your lakehouse tables listed immediately
+
+### If you didn't install Azure CLI:
+1. Copilot will use the `lakehouse_list_tables` tool
+2. A browser window pops up for authentication (first time only)
 3. Sign in with your Microsoft account
-4. You'll see your lakehouse tables listed!
+4. Credentials are cached, so you won't be prompted again in this session
+5. You'll see your lakehouse tables listed!
 
 **If you see your tables, you're all set!** ✅
+
+> **💡 Pro Tip:** Using Azure CLI (`az login`) provides the smoothest experience with zero authentication prompts after initial setup!
 
 ---
 
@@ -297,6 +349,33 @@ Find relationships between tables in my lakehouse
 2. Try the query again
 3. Make sure you're logged into [Fabric Portal](https://app.fabric.microsoft.com/)
 4. Verify your Fabric workspace permissions
+
+## Problem: "Getting prompted to authenticate repeatedly"
+
+**This is now fixed!** The latest version uses cached authentication tokens.
+
+**For the best experience:**
+1. Install Azure CLI (see Step 1.2)
+2. Run `az login` in PowerShell/Terminal
+3. Restart VS Code
+4. You'll never be prompted again!
+
+**Alternative solutions if still having issues:**
+1. Make sure you're on the latest version:
+   ```powershell
+   pip install --upgrade fabric-lakehouse-mcp
+   ```
+2. Restart VS Code completely after upgrading
+3. If using VS Code's built-in terminal, make sure it's authenticated:
+   - Open PowerShell/Terminal
+   - Run `az login`
+   - Close and reopen VS Code
+
+**How it works:**
+- The MCP server uses `DefaultAzureCredential` which automatically finds and caches your credentials
+- First priority: Azure CLI credentials (from `az login`)
+- Credentials are cached and automatically refreshed
+- No browser prompts after initial authentication!
 
 ## Problem: "No tables found" or empty results
 

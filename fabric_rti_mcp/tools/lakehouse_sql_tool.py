@@ -3,26 +3,61 @@ Lakehouse SQL tools for querying and exploring Fabric Lakehouse data.
 """
 
 import os
+import struct
 from typing import List, Tuple
 import pyodbc
+from azure.identity import DefaultAzureCredential
+
+# Global credential object - initialized once, reused for all requests
+# DefaultAzureCredential automatically caches tokens and handles refresh
+_credential = None
 
 
 def _get_connection():
-    """Get a connection to the lakehouse SQL endpoint."""
+    """
+    Get a connection to the lakehouse SQL endpoint using Azure authentication.
+    
+    Uses DefaultAzureCredential which tries authentication methods in order:
+    1. Azure CLI (recommended - run 'az login' once)
+    2. Environment variables
+    3. Managed Identity (for Azure-hosted deployments)
+    4. Visual Studio Code
+    5. Interactive browser (fallback)
+    
+    Tokens are automatically cached and refreshed by azure-identity library.
+    """
+    global _credential
+    
     sql_endpoint = os.getenv("FABRIC_SQL_ENDPOINT")
     database = os.getenv("FABRIC_LAKEHOUSE_NAME")
     
     if not sql_endpoint or not database:
         raise ValueError("FABRIC_SQL_ENDPOINT and FABRIC_LAKEHOUSE_NAME must be set")
     
+    # Initialize credential once (it handles all caching internally)
+    if _credential is None:
+        _credential = DefaultAzureCredential()
+    
+    # Get access token (automatically cached and refreshed by azure-identity)
+    # Scope for Azure SQL Database / Fabric SQL Endpoint
+    token = _credential.get_token("https://database.windows.net/.default")
+    
+    # Convert token to bytes for pyodbc
+    token_bytes = token.token.encode("utf-16-le")
+    token_struct = struct.pack(f"<I{len(token_bytes)}s", len(token_bytes), token_bytes)
+    
+    # SQL_COPT_SS_ACCESS_TOKEN attribute for pyodbc
+    SQL_COPT_SS_ACCESS_TOKEN = 1256
+    
     conn_str = (
         f"Driver={{ODBC Driver 18 for SQL Server}};"
         f"Server={sql_endpoint};"
         f"Database={database};"
-        "Authentication=ActiveDirectoryInteractive;"
         "Encrypt=yes;TrustServerCertificate=no"
     )
-    return pyodbc.connect(conn_str)
+    
+    conn = pyodbc.connect(conn_str, attrs_before={SQL_COPT_SS_ACCESS_TOKEN: token_struct})
+    return conn
 
 
 def lakehouse_sql_query(query: str) -> List[Tuple]:

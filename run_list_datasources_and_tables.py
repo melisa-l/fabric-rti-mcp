@@ -1,156 +1,115 @@
-#!/usr/bin/env python3#!/usr/bin/env python3
+#!/usr/bin/env python3
 
-""""""
+"""
+Run this locally to list external data sources and tables in the Fabric Lakehouse SQL endpoint.
 
-Run this locally to list tables in the Fabric Lakehouse SQL endpoint.Run this locally to list external data sources and tables in the Fabric Lakehouse SQL endpoint.
+Usage (PowerShell):
+    $env:FABRIC_SQL_ENDPOINT = "your-sql-endpoint.fabric.windows.net"
+    $env:FABRIC_LAKEHOUSE_NAME = "YourLakehouseDatabaseName"
+    python run_list_datasources_and_tables.py
 
+This script uses ActiveDirectoryInteractive authentication which will prompt for credentials
+in your default web browser.
 
+Make sure you have:
+    pip install pyodbc
+    ODBC Driver 18 for SQL Server installed (matching your Python bitness)
+"""
 
-Usage (PowerShell):Usage (PowerShell):
+import os
+import sys
+from typing import List, Tuple
+import pyodbc
 
-    $env:FABRIC_SQL_ENDPOINT = "your-sql-endpoint.fabric.windows.net"    $env:FABRIC_SQL_ENDPOINT = "your-sql-endpoint.fabric.windows.net"
-
-    $env:FABRIC_LAKEHOUSE_NAME = "YourLakehouseDatabaseName"    $env:FABRIC_LAKEHOUSE_NAME = "YourLakehouseDatabaseName"
-
-    python run_list_datasources_and_tables.py    python run_list_datasources_and_tables.py
-
-
-
-This script uses ActiveDirectoryInteractive authentication which will prompt for credentialsThis script uses ActiveDirectoryInteractive authentication which will prompt for credentials
-
-in your default web browser.in your default web browser.
-
-
-
-Make sure you have:Make sure you have:
-
-    pip install pyodbc    pip install pyodbc
-
-    ODBC Driver 18 for SQL Server installed (matching your Python bitness)    ODBC Driver 18 for SQL Server installed (matching your Python bitness)
-
-""""""
-
-
-
-import osimport os
-
-import sysimport sys
-
-from typing import List, Tuplefrom typing import List, Tuple
-
-import pyodbcimport pyodbc
-
-
-
-SQL_TABLES_QUERY = """SQL_DATASOURCES_QUERY = """
-
-SELECT TABLE_SCHEMA, TABLE_NAMESELECT name, data_source_type, location
-
-FROM INFORMATION_SCHEMA.TABLESFROM sys.external_data_sources
-
-WHERE TABLE_TYPE = 'BASE TABLE'ORDER BY name
-
-ORDER BY TABLE_SCHEMA, TABLE_NAME"""
-
+SQL_DATASOURCES_QUERY = """
+SELECT name, type_desc, location
+FROM sys.external_data_sources
+ORDER BY name
 """
 
 SQL_TABLES_QUERY = """
-
-def list_rows(conn: pyodbc.Connection, sql: str) -> List[Tuple[str, ...]]:SELECT TABLE_SCHEMA, TABLE_NAME
-
-    with conn.cursor() as cur:FROM INFORMATION_SCHEMA.TABLES
-
-        cur.execute(sql)WHERE TABLE_TYPE = 'BASE TABLE'
-
-        return [tuple(row) for row in cur.fetchall()]ORDER BY TABLE_SCHEMA, TABLE_NAME
-
+SELECT TABLE_SCHEMA, TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE'
+ORDER BY TABLE_SCHEMA, TABLE_NAME
 """
 
+SQL_QUERY_HISTORY = """
+SELECT TOP 10 *
+FROM sys.dm_exec_requests_history
+ORDER BY start_time DESC
+"""
+
+
+def list_rows(conn: pyodbc.Connection, sql: str) -> List[Tuple]:
+    with conn.cursor() as cur:
+        cur.execute(sql)
+        return [tuple(row) for row in cur.fetchall()]
+
+
 def main() -> None:
-
-    conn = Nonedef list_rows(conn: pyodbc.Connection, sql: str) -> List[Tuple[str, ...]]:
-
-    try:    with conn.cursor() as cur:
-
-        sql_endpoint = os.getenv("FABRIC_SQL_ENDPOINT")        cur.execute(sql)
-
-        database = os.getenv("FABRIC_LAKEHOUSE_NAME")        return [tuple(row) for row in cur.fetchall()]
-
-        if not sql_endpoint or not database:
-
-            print("FABRIC_SQL_ENDPOINT and FABRIC_LAKEHOUSE_NAME must be set in the environment.", file=sys.stderr)def main() -> None:
-
-            sys.exit(1)    conn = None
-
+    conn = None
     try:
-
-        print(f"Using endpoint: {sql_endpoint}  database: {database}")        sql_endpoint = os.getenv("FABRIC_SQL_ENDPOINT")
-
+        sql_endpoint = os.getenv("FABRIC_SQL_ENDPOINT")
         database = os.getenv("FABRIC_LAKEHOUSE_NAME")
+        if not sql_endpoint or not database:
+            print("FABRIC_SQL_ENDPOINT and FABRIC_LAKEHOUSE_NAME must be set in the environment.", file=sys.stderr)
+            sys.exit(1)
 
-        conn_str = (        if not sql_endpoint or not database:
+        print(f"Using endpoint: {sql_endpoint}  database: {database}")
 
-            f"Driver={{ODBC Driver 18 for SQL Server}};"            print("FABRIC_SQL_ENDPOINT and FABRIC_LAKEHOUSE_NAME must be set in the environment.", file=sys.stderr)
-
-            f"Server={sql_endpoint};"            sys.exit(1)
-
-            f"Database={database};"
-
-            "Authentication=ActiveDirectoryInteractive;"        print(f"Using endpoint: {sql_endpoint}  database: {database}")
-
-            "Encrypt=yes;TrustServerCertificate=no"
-
-        )        conn_str = (
-
+        conn_str = (
             f"Driver={{ODBC Driver 18 for SQL Server}};"
-
-        print("Connecting to the SQL endpoint via ODBC (browser authentication will open)...")            f"Server={sql_endpoint};"
-
-        conn = pyodbc.connect(conn_str)            f"Database={database};"
-
+            f"Server={sql_endpoint};"
+            f"Database={database};"
             "Authentication=ActiveDirectoryInteractive;"
+            "Encrypt=yes;TrustServerCertificate=no"
+        )
 
-        print("\nQuerying tables...")            "Encrypt=yes;TrustServerCertificate=no"
+        print("Connecting to the SQL endpoint via ODBC (browser authentication will open)...")
+        conn = pyodbc.connect(conn_str)
 
-        tables = list_rows(conn, SQL_TABLES_QUERY)        )
-
-        if tables:
-
-            print("\nTables found:")        print("Connecting to the SQL endpoint via ODBC (browser authentication will open)...")
-
-            for schema, name in tables:        conn = pyodbc.connect(conn_str)
-
-                print(f" - {schema}.{name}")
-
-        else:        print("Connected. Querying external data sources...")
-
-            print("\nNo tables found in the lakehouse.")        datasources = list_rows(conn, SQL_DATASOURCES_QUERY)
-
+        # Query external data sources
+        print("\n" + "="*60)
+        print("EXTERNAL DATA SOURCES")
+        print("="*60)
+        datasources = list_rows(conn, SQL_DATASOURCES_QUERY)
         if datasources:
-
-    except Exception as e:            print("External data sources:")
-
-        print("Error while querying the lakehouse:", file=sys.stderr)            for row in datasources:
-
-        print(str(e), file=sys.stderr)                print(f" - {', '.join(str(x) for x in row)}")
-
-        sys.exit(1)        else:
-
-    finally:            print("No external data sources found or query returned no rows.")
-
-        if conn:
-
-            conn.close()        print("\nQuerying tables...")
-
-        tables = list_rows(conn, SQL_TABLES_QUERY)
-
-if __name__ == "__main__":        if tables:
-
-    main()            print("Tables:")
-            for schema, name in tables:
-                print(f" - {schema}.{name}")
+            for name, ds_type, location in datasources:
+                print(f"\n  Name: {name}")
+                print(f"  Type: {ds_type}")
+                print(f"  Location: {location}")
         else:
-            print("No tables found or query returned no rows.")
+            print("No external data sources found.")
+
+        # Query tables
+        print("\n" + "="*60)
+        print("TABLES")
+        print("="*60)
+        tables = list_rows(conn, SQL_TABLES_QUERY)
+        if tables:
+            for schema, name in tables:
+                print(f"  {schema}.{name}")
+        else:
+            print("No tables found.")
+
+        # Query history
+        print("\n" + "="*60)
+        print("RECENT QUERY HISTORY (Last 10)")
+        print("="*60)
+        try:
+            history = list_rows(conn, SQL_QUERY_HISTORY)
+            if history:
+                for query_id, start_time, end_time, duration_ms, status, statement in history:
+                    print(f"\n  Query ID: {query_id}")
+                    print(f"  Time: {start_time}")
+                    print(f"  Duration: {duration_ms}ms")
+                    print(f"  Status: {status}")
+                    print(f"  SQL: {statement}...")
+            else:
+                print("No query history found.")
+        except Exception as e:
+            print(f"Could not retrieve query history: {e}")
 
     except Exception as e:
         print("Error while querying the lakehouse:", file=sys.stderr)
@@ -159,6 +118,7 @@ if __name__ == "__main__":        if tables:
     finally:
         if conn:
             conn.close()
+
 
 if __name__ == "__main__":
     main()
