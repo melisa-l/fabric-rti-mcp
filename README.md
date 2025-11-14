@@ -1,437 +1,409 @@
-# fabric-lakehouse-mcp[![PyPI](https://img.shields.io/pypi/v/fabric-lakehouse-mcp?style=flat-square)](https://pypi.org/project/fabric-lakehouse-mcp/) [![GitHub](https://img.shields.io/badge/GitHub-fabric--lakehouse--mcp-181717?style=flat-square&logo=github)](https://github.com/melisa-l/fabric-rti-mcp) [![PyPI Downloads](https://static.pepy.tech/badge/fabric-lakehouse-mcp)](https://pepy.tech/projects/fabric-lakehouse-mcp)
+# fabric-lakehouse-mcp[![Install with UVX in VS Code](https://img.shields.io/badge/VS_Code-Install_Microsoft_Fabric_RTI_MCP_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=ms-fabric-rti&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22microsoft-fabric-rti-mcp%22%5D%7D) [![GitHub](https://img.shields.io/badge/GitHub-fabric--rti--mcp-181717?style=flat-square&logo=github)](https://github.com/melisa-l/fabric-rti-mcp) [![PyPI Downloads](https://static.pepy.tech/badge/microsoft-fabric-rti-mcp)](https://pepy.tech/projects/microsoft-fabric-rti-mcp)
 
 
 
-[![PyPI](https://img.shields.io/pypi/v/fabric-lakehouse-mcp?style=flat-square)](https://pypi.org/project/fabric-lakehouse-mcp/) [![GitHub](https://img.shields.io/badge/GitHub-fabric--lakehouse--mcp-181717?style=flat-square&logo=github)](https://github.com/melisa-l/fabric-rti-mcp) [![PyPI Downloads](https://static.pepy.tech/badge/fabric-lakehouse-mcp)](https://pepy.tech/projects/fabric-lakehouse-mcp)## 🎯 Overview
+[![PyPI](https://img.shields.io/pypi/v/fabric-lakehouse-mcp?style=flat-square)](https://pypi.org/project/fabric-lakehouse-mcp/) [![GitHub](https://img.shields.io/badge/GitHub-fabric--lakehouse--mcp-181717?style=flat-square&logo=github)](https://github.com/melisa-l/fabric-rti-mcp) ## 🎯 Overview
 
 
 
-## 🎯 OverviewA Model Context Protocol (MCP) server for [Microsoft Fabric Lakehouses](https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-overview). 
+## 🎯 OverviewA Model Context Protocol (MCP) server implementation for [Microsoft Fabric Real-Time Intelligence (RTI)](https://aka.ms/fabricrti). 
 
-This server enables AI agents to query and analyze data in Fabric SQL Lakehouses using natural language through the MCP interface.
+This server enables AI agents to interact with Fabric RTI services by providing tools through the MCP interface, allowing for seamless data querying and analysis capabilities.
 
-A Model Context Protocol (MCP) server for [Microsoft Fabric Lakehouses](https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-overview). 
-
-This server enables AI agents to query and analyze data in Fabric SQL Lakehouses using natural language through the MCP interface.> [!NOTE]  
-
-> This project is in Public Preview and implementation may significantly change prior to General Availability.
+A Model Context Protocol (MCP) server for [Microsoft Fabric Lakehouses](https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-overview). Query and analyze your Lakehouse data using natural language through AI agents.
 
 > [!NOTE]  
 
-> This project is in Public Preview and implementation may significantly change prior to General Availability.### 📦 Quick Start
+> [!NOTE]  > This project is in Public Preview and implementation may significantly change prior to General Availability.
+
+> This project is in Public Preview and may change before General Availability.
+
+### 📦 Installation Options
+
+## 📦 Quick Start
+
+- **🚀 Quick Start (GitHub)**: Clone and install locally for latest features - [See 5-minute guide](QUICKSTART.md) or [detailed instructions below](#-install-from-github-recommended-for-development)
+
+```bash- **📦 PyPI Package**: Install via pip for stable releases - [See PyPI instructions](#-alternative-install-from-pypi-pip)
+
+# 1. Install Azure CLI and login- **🔧 Development**: Full setup for contributing and debugging - [See debugging guide](#-debugging-the-mcp-server-locally)
+
+az login
+
+### 🔍 How It Works
+
+# 2. Install the package
+
+pip install fabric-lakehouse-mcpThe Fabric RTI MCP Server acts as a bridge between AI agents and Microsoft Fabric RTI services:
 
 
 
-### 📦 Quick StartInstall via pip and configure in VS Code:
+# 3. Configure in VS Code- 🔄 **MCP Protocol**: Uses the Model Context Protocol to expose Fabric RTI capabilities as tools
+
+# Add the configuration below to your MCP settings- 🏗️ **Natural Language to KQL**: AI agents can translate natural language requests into KQL queries
+
+```- 💡 **Secure Authentication**: Leverages Azure Identity for seamless, secure access to your resources
+
+- ⚡ **Real-time Data Access**: Direct connection to Eventhouse and Eventstreams for live data analysis
+
+**Configuration** (add to VS Code MCP settings):
+
+### ✨ Supported Services
+
+```json
+
+{**Eventhouse (Kusto)**: Execute KQL queries against Microsoft Fabric RTI [Eventhouse](https://aka.ms/eventhouse) and [Azure Data Explorer (ADX)](https://aka.ms/adx).
+
+  "mcpServers": {
+
+    "fabric-lakehouse": {**Eventstreams**: Manage Microsoft Fabric [Eventstreams](https://learn.microsoft.com/en-us/fabric/real-time-intelligence/eventstream/eventstream-introduction) for real-time data processing:
+
+      "command": "fabric-lakehouse",- List Eventstreams in workspaces
+
+      "args": [],- Get Eventstream details and definitions
+
+      "env": {
+
+        "FABRIC_SQL_ENDPOINT": "your-workspace.datawarehouse.fabric.microsoft.com",## 🚧 Coming soon
+
+        "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName",- **Activator**
+
+        "UV_LINK_MODE": "copy"- **Other RTI items**
+
+      }
+
+    }### 🔍 Example Prompts
+
+  }
+
+}**Eventhouse Analytics:**
+
+```- "Get databases in my Eventhouse"
+
+- "Sample 10 rows from table 'StormEvents' in Eventhouse"
+
+See [QUICKSTART_GUIDE.md](QUICKSTART_GUIDE.md) for detailed setup instructions and [mcp.json](mcp.json) for a template configuration.- "What can you tell me about StormEvents data?"
+
+- "Analyze the StormEvents to come up with trend analysis across past 10 years of data"
+
+## ✨ Features- "Analyze the commands in 'CommandExecution' table and categorize them as low/medium/high risks"
 
 
 
-Install via pip and configure in VS Code:```bash
+**SQL Lakehouse Tools:****SQL Lakehouse Analytics:**
 
-pip install fabric-lakehouse-mcp
+- `sql_list_lakehouse_tables` - List all tables in your Lakehouse- "What tables are in my SQL lakehouse?"
 
-```bash```
+- `sql_get_table_schema` - Get detailed schema for any table- "Show me the schema of table 'MyTable' in the lakehouse"
 
-pip install fabric-lakehouse-mcp
+- "List all tables and their columns in my lakehouse"
 
-```See the [Quick Start Guide](QUICKSTART_GUIDE.md) for full setup instructions.
+**Query History Tools:**
 
+- `query_history_list` - View recent SQL queries**Eventstream Management:**
 
+- `query_history_get` - Get details about specific query execution- "List all Eventstreams in my workspace"
 
-See the [Quick Start Guide](QUICKSTART_GUIDE.md) for full setup instructions.### 🔍 How It Works
+- "Show me the details of my IoT data Eventstream"
 
-
-
-### 🔍 How It WorksThe Fabric Lakehouse MCP Server acts as a bridge between AI agents and Microsoft Fabric SQL Lakehouses:
-
-
-
-The Fabric Lakehouse MCP Server acts as a bridge between AI agents and Microsoft Fabric SQL Lakehouses:- 🔄 **MCP Protocol**: Uses the Model Context Protocol to expose Lakehouse capabilities as tools
-
-- 🏗️ **Natural Language to SQL**: AI agents can translate natural language requests into SQL queries
-
-- 🔄 **MCP Protocol**: Uses the Model Context Protocol to expose Lakehouse capabilities as tools- 💡 **Secure Authentication**: Uses Azure CLI authentication for secure access
-
-- 🏗️ **Natural Language to SQL**: AI agents can translate natural language requests into SQL queries- ⚡ **Direct SQL Access**: Query Lakehouse tables via the SQL Analytics Endpoint
-
-- 💡 **Secure Authentication**: Uses Azure CLI authentication for secure access
-
-- ⚡ **Direct SQL Access**: Query Lakehouse tables via the SQL Analytics Endpoint### ✨ Supported Services
+## 🔍 Example Prompts
 
 
 
-### ✨ Supported Services**SQL Lakehouse**: Query and analyze data in Microsoft Fabric [Lakehouses](https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-overview) using SQL:
+- "What tables are in my lakehouse?"### Available tools 
 
-- List all tables in your Lakehouse
+- "Show me the schema of the customers table"
 
-**SQL Lakehouse**: Query and analyze data in Microsoft Fabric [Lakehouses](https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-overview) using SQL:- Get detailed schema information for tables
+- "List all tables and their column types"#### SQL Lakehouse - 2 Tools:
 
-- List all tables in your Lakehouse- View query execution history
+- "What queries have been run recently?"- **`sql_list_lakehouse_tables`** - List all tables in a Fabric SQL lakehouse
 
-- Get detailed schema information for tables
+- **`sql_get_table_schema`** - Get detailed schema information for a specific table in the lakehouse
 
-- View query execution history### 🔍 Example Prompts
+## ⚙️ Configuration
 
+#### Eventhouse (Kusto) - 12 Tools:
 
+### Required Environment Variables- **`kusto_known_services`** - List all available Kusto services configured in the MCP
 
-### 🔍 Example Prompts**Lakehouse Analytics:**
+- **`kusto_query`** - Execute KQL queries on the specified database
 
-- "What tables are in my lakehouse?"
+| Variable | Description | Example |- **`kusto_command`** - Execute Kusto management commands (destructive operations)
 
-**Lakehouse Analytics:**- "Show me the schema of the customers table"
+|----------|-------------|---------|- **`kusto_list_databases`** - List all databases in the Kusto cluster
 
-- "What tables are in my lakehouse?"- "List all tables and their column types"
+| `FABRIC_SQL_ENDPOINT` | Your Fabric SQL endpoint (without https://) | `workspace.datawarehouse.fabric.microsoft.com` |- **`kusto_list_tables`** - List all tables in a specified database
 
-- "Show me the schema of the customers table"- "What queries have been run recently?"
+| `FABRIC_LAKEHOUSE_NAME` | Name of your lakehouse (case-sensitive) | `MyLakehouse` |- **`kusto_get_entities_schema`** - Get schema information for all entities (tables, materialized views, functions) in a database
 
-- "List all tables and their column types"
+- **`kusto_get_table_schema`** - Get detailed schema information for a specific table
 
-- "What queries have been run recently?"### Available Tools
+### Optional Environment Variables- **`kusto_get_function_schema`** - Get schema information for a specific function, including parameters and output schema
 
+- **`kusto_sample_table_data`** - Retrieve random sample records from a specified table
 
+| Variable | Description | Default |- **`kusto_sample_function_data`** - Retrieve random sample records from the result of a function call
 
-### Available Tools#### SQL Lakehouse - 2 Tools:
+|----------|-------------|---------|- **`kusto_ingest_inline_into_table`** - Ingest inline CSV data into a specified table
 
-- **`sql_list_lakehouse_tables`** - List all tables in a Fabric SQL lakehouse
+| `FABRIC_API_BASE` | Fabric API base URL | `https://api.fabric.microsoft.com/v1` |- **`kusto_get_shots`** - Retrieve semantically similar query examples from a shots table using AI embeddings
 
-#### SQL Lakehouse - 2 Tools:- **`sql_get_table_schema`** - Get detailed schema information for a specific table in the lakehouse
+| `FABRIC_BASE_URL` | Fabric web base URL | `https://fabric.microsoft.com` |
 
-- **`sql_list_lakehouse_tables`** - List all tables in a Fabric SQL lakehouse
+| `UV_LINK_MODE` | Set to `copy` to avoid OneDrive hardlink issues | - |#### Eventstreams - 6 Tools:
 
-- **`sql_get_table_schema`** - Get detailed schema information for a specific table in the lakehouse#### Query History - 2 Tools:
+- **`list_eventstreams`** - List all Eventstreams in your Fabric workspace
 
-- **`query_history_list`** - List recent SQL queries executed on the lakehouse
+## 🔑 Authentication- **`get_eventstream`** - Get detailed information about a specific Eventstream
 
-#### Query History - 2 Tools:- **`query_history_get`** - Get detailed information about a specific query execution
+- **`get_eventstream_definition`** - Retrieve complete JSON definition of an Eventstream
 
-- **`query_history_list`** - List recent SQL queries executed on the lakehouse
+Uses Azure Identity [`DefaultAzureCredential`](https://learn.microsoft.com/en-us/azure/developer/python/sdk/authentication/credential-chains?tabs=dac) for secure authentication.
 
-- **`query_history_get`** - Get detailed information about a specific query execution## Getting Started
+## Getting Started
 
+**Recommended: Azure CLI**
 
+### Prerequisites
 
-## Getting Started### Prerequisites
+```bash1. Install either the stable or Insiders release of VS Code:
 
-1. Install either the stable or Insiders release of VS Code:
+# Windows   * [💫 Stable release](https://code.visualstudio.com/download)
 
-### Prerequisites   * [💫 Stable release](https://code.visualstudio.com/download)
+winget install Microsoft.AzureCLI   * [🔮 Insiders release](https://code.visualstudio.com/insiders)
 
-1. **Python 3.10+** installed   * [🔮 Insiders release](https://code.visualstudio.com/insiders)
+2. Install the [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) and [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extensions
 
-2. **Azure CLI** installed ([Download](https://learn.microsoft.com/cli/azure/install-azure-cli))2. Install the [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) and [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extensions
+# macOS3. Install `uv`  
 
-3. **VS Code** with GitHub Copilot extensions3. Install `uv`  
-
-4. Access to a **Microsoft Fabric Lakehouse**```ps
+brew install azure-cli```ps
 
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-### Installation```  
+# Linux```  
 
-or, check here for [other install options](https://docs.astral.sh/uv/getting-started/installation/#__tabbed_1_2)
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bashor, check here for [other install options](https://docs.astral.sh/uv/getting-started/installation/#__tabbed_1_2)
 
-#### Quick Install (PyPI)
 
-```bash4. Open VS Code in an empty folder
 
-pip install fabric-lakehouse-mcp
+# Authenticate4. Open VS Code in an empty folder
+
+az login
 
 ```## 📦 Installation
 
 
 
-#### Development Install (from source)### 🔧 Install from GitHub (Recommended for Development)  
-
-```bash
-
-git clone https://github.com/melisa-l/fabric-rti-mcp.gitIf you want to use the latest version or contribute to development, you can install directly from the GitHub repository:
-
-cd fabric-rti-mcp
-
-pip install -e ".[dev]"#### Quick Setup Steps:
-
-```
-
-1. **Prerequisites**
-
-### Configuration   - Python 3.10+ installed and added to PATH
-
-   - `uv` package manager installed (see installation steps above)
-
-Add to your VS Code MCP settings:   - VS Code with GitHub Copilot extensions
+The MCP server will automatically use your cached Azure CLI credentials.### 🔧 Install from GitHub (Recommended for Development)  
 
 
 
-```json2. **Clone the Repository**
+## 🛠️ DevelopmentIf you want to use the latest version or contribute to development, you can install directly from the GitHub repository:
 
-{   ```bash
 
-  "mcpServers": {   git clone https://github.com/melisa-l/fabric-rti-mcp.git
 
-    "fabric-lakehouse": {   cd fabric-rti-mcp
+### Install from Source#### Quick Setup Steps:
 
-      "command": "uvx",   ```
 
-      "args": ["fabric-lakehouse-mcp"],
 
-      "env": {3. **Install Dependencies**
+```bash1. **Prerequisites**
 
-        "FABRIC_SQL_ENDPOINT": "your-workspace-id.datawarehouse.fabric.microsoft.com",   ```bash
+git clone https://github.com/melisa-l/fabric-rti-mcp.git   - Python 3.10+ installed and added to PATH
 
-        "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName",   pip install -e .
+cd fabric-rti-mcp   - `uv` package manager installed (see installation steps above)
 
-        "UV_LINK_MODE": "copy"   ```
-
-      }   Or using uv:
-
-    }   ```bash
-
-  }   uv pip install -e .
-
-}   ```
+pip install -e ".[dev]"   - VS Code with GitHub Copilot extensions
 
 ```
 
-4. **Configure VS Code**
+2. **Clone the Repository**
 
-See the [Quick Start Guide](QUICKSTART_GUIDE.md) for detailed setup instructions.   Add the following to your `settings.json` or `mcp.json` file:
+### Debug in VS Code   ```bash
 
-   - Press `Ctrl+Shift+P` and search for "Preferences: Open User Settings (JSON)"
+   git clone https://github.com/melisa-l/fabric-rti-mcp.git
 
-## 🧪 Testing   - Add the MCP server configuration below
+1. Install with dev dependencies: `pip install -e ".[dev]"`   cd fabric-rti-mcp
 
-   - **Important**: Update the `--directory` path to match where you cloned the repository
+2. Configure environment variables (see Configuration section)   ```
 
-1. Open GitHub Copilot in VS Code and switch to Agent mode
+3. Attach debugger:
 
-2. You should see the Fabric Lakehouse MCP Server in the tools list   - **Important**: Update the `--directory` path to match where you cloned the repository
+   - Run `MCP: List Servers` in Command Palette3. **Install Dependencies**
 
-3. Try prompts like:
+   - Select `fabric-lakehouse` → `Show Output`   ```bash
 
-   - "List all tables in my lakehouse"   **Example configuration:**
+   - Note the PID   pip install -e .
 
-   - "Show me the schema for the customers table"   ```json
+   - Use VS Code's `Python: Attach` configuration with that PID   ```
 
-   - "What queries have been run recently?"   {
+   Or using uv:
+
+## 🧪 Testing   ```bash
+
+   uv pip install -e .
+
+1. Open GitHub Copilot in VS Code (Agent mode)   ```
+
+2. Verify server appears in tools list
+
+3. Try prompts:4. **Configure VS Code**
+
+   - "List all tables in my lakehouse"   Add the following to your `settings.json` or `mcp.json` file:
+
+   - "Show me the schema for the customers table"   - Press `Ctrl+Shift+P` and search for "Preferences: Open User Settings (JSON)"
+
+   - Add the MCP server configuration below
+
+## 📚 Documentation   - **Important**: Update the `--directory` path to match where you cloned the repository
+
+
+
+- [Quick Start Guide](QUICKSTART_GUIDE.md) - Complete setup walkthrough   - **Important**: Update the `--directory` path to match where you cloned the repository
+
+- [Configuration Template](mcp.json) - Copy-paste ready configuration
+
+- [Changelog](CHANGELOG.md) - Version history   **Example configuration:**
+
+   ```json
+
+## 🛡️ Security   {
 
        "mcp": {
 
-## ⚙️ Configuration Reference           "servers": {
+Your credentials are handled securely through the official [Azure Identity SDK](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/identity/Azure.Identity/README.md). We never store or manage tokens directly.           "servers": {
 
                "fabric-rti-mcp": {
 
-### Required Environment Variables                   "command": "uv",
+## 👥 Contributing                   "command": "uv",
 
                    "args": [
 
-| Variable | Description | Example |                       "--directory",
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA). For details, visit https://cla.opensource.microsoft.com.                       "--directory",
 
-|----------|-------------|---------|                       "C:/Users/YourUsername/fabric-rti-mcp/",
+                       "C:/Users/YourUsername/fabric-rti-mcp/",
 
-| `FABRIC_SQL_ENDPOINT` | Your Fabric SQL endpoint (without https://) | `workspace.datawarehouse.fabric.microsoft.com` |                       "run",
+## 🤝 Code of Conduct                       "run",
 
-| `FABRIC_LAKEHOUSE_NAME` | Name of your lakehouse database (case-sensitive) | `MyLakehouse` |                       "-m",
+                       "-m",
 
-                       "fabric_rti_mcp.server"
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com).                       "fabric_rti_mcp.server"
 
-### Optional Environment Variables                   ],
+                   ],
 
-                   "env": {
+## ™️ Trademarks                   "env": {
 
-| Variable | Description | Default | Example |                       "FABRIC_SQL_ENDPOINT": "your-workspace-name.datawarehouse.fabric.microsoft.com",
+                       "FABRIC_SQL_ENDPOINT": "your-workspace-name.datawarehouse.fabric.microsoft.com",
 
-|----------|-------------|---------|---------|                       "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).                       "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
 
-| `FABRIC_API_BASE` | Base URL for Microsoft Fabric API | `https://api.fabric.microsoft.com/v1` | Custom API endpoint |                   }
-
-| `FABRIC_BASE_URL` | Base URL for Microsoft Fabric web interface | `https://fabric.microsoft.com` | Custom Fabric URL |               }
-
-| `UV_LINK_MODE` | Set to `copy` to avoid OneDrive hardlink issues | - | `copy` |           }
-
+                   }
+               }
+           }
        }
-
-## 🔑 Authentication   }
-
+   }
    ```
 
-The MCP Server uses Azure Identity via [`DefaultAzureCredential`](https://learn.microsoft.com/en-us/azure/developer/python/sdk/authentication/credential-chains?tabs=dac) for secure authentication with **automatic token caching**.
-
 5. **Configure Environment Variables**
-
-### 🎯 Recommended: Azure CLI Authentication   - **FABRIC_SQL_ENDPOINT** (Required): SQL endpoint for your Fabric lakehouse
-
+   - **FABRIC_SQL_ENDPOINT** (Required): SQL endpoint for your Fabric lakehouse
      - Find: Fabric Portal → Lakehouse → SQL endpoint → Copy Server value
-
-**Install Azure CLI:**     - Format: `your-workspace-name.datawarehouse.fabric.microsoft.com`
-
+     - Format: `your-workspace-name.datawarehouse.fabric.microsoft.com`
    - **FABRIC_LAKEHOUSE_NAME** (Required): Name of your lakehouse database
 
-**Windows:**
+6. **Restart VS Code**
+   - Close and reopen VS Code for the MCP server to be recognized
+   - The server will automatically start when you use Copilot in Agent mode
 
-```powershell6. **Restart VS Code**
-
-winget install Microsoft.AzureCLI   - Close and reopen VS Code for the MCP server to be recognized
-
-```   - The server will automatically start when you use Copilot in Agent mode
-
-
-
-**macOS:**#### Verify Installation:
-
-```bash1. Open GitHub Copilot Chat and switch to Agent mode
-
-brew install azure-cli2. Type "@workspace /tools" to see available MCP tools
-
-```3. You should see tools from fabric-rti-mcp (SQL Lakehouse tools primarily)
-
+#### Verify Installation:
+1. Open GitHub Copilot Chat and switch to Agent mode
+2. Type "@workspace /tools" to see available MCP tools
+3. You should see tools from fabric-rti-mcp (SQL Lakehouse tools primarily)
 4. Try a test query: "What tables are in my lakehouse?"
 
-**Linux:**
+---
 
-```bash---
-
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-```### 🔧 Alternative: Install from PyPI (Pip)
-
+### 🔧 Alternative: Install from PyPI (Pip)
 The Fabric RTI MCP Server is also available on [PyPI](https://pypi.org/project/microsoft-fabric-rti-mcp/):
 
-**Authenticate:**
+#### From VS Code
+1. Open command palette (`Ctrl+Shift+P`) and run `MCP: Add Server`
+2. Select "Install from Pip"
+3. Enter package name: `microsoft-fabric-rti-mcp`
+4. Follow the prompts to configure
 
-```bash## Getting Started
+The process will add these settings to your `settings.json`:
 
-az login
+## 🐛 Debugging the MCP Server locally
+Assuming you have python installed and the repo cloned:
 
-```### Prerequisites
-
-1. **Python 3.10+** installed
-
-That's it! The MCP server will automatically use these cached credentials.2. **Azure CLI** installed ([Download](https://learn.microsoft.com/cli/azure/install-azure-cli))
-
-3. **VS Code** with GitHub Copilot extensions
-
-### Alternative Authentication Methods4. Access to a **Microsoft Fabric Lakehouse**
-
-
-
-`DefaultAzureCredential` tries these methods in order:### Installation
-
-1. Environment Variables
-
-2. Managed Identity (for Azure deployments)#### Quick Install (PyPI)
-
-3. Visual Studio Code credentials```bash
-
-4. **Azure CLI** (recommended)pip install fabric-lakehouse-mcp
-
-5. Azure PowerShell```
-
-6. Interactive Browser (fallback)
-
-#### Development Install (from source)
-
-## 🐛 Debugging```bash
-
-git clone https://github.com/melisa-l/fabric-rti-mcp.git
-
-### Local Developmentcd fabric-rti-mcp
-
-pip install -e ".[dev]"
-
-1. Install with dev dependencies:```
-
+### Install locally
 ```bash
-
-pip install -e ".[dev]"### Configuration
-
+pip install -e ".[dev]"
 ```
 
-Add to your VS Code MCP settings:
+### Configure
 
-2. Configure your environment variables (see Configuration section)
+Follow the [Manual Install](#🔧-manual-install-install-from-source) instructions.
 
-```json
-
-3. Attach debugger:{
-
-   - Open VS Code Command Palette (`Ctrl+Shift+P`)  "mcpServers": {
-
-   - Run `MCP: List Servers`    "fabric-lakehouse": {
-
-   - Select `fabric-lakehouse` and click `Show Output`      "command": "uvx",
-
-   - Note the PID from the output      "args": ["fabric-lakehouse-mcp"],
-
-   - Use VS Code's `Python: Attach` debug configuration with that PID      "env": {
-
-        "FABRIC_SQL_ENDPOINT": "your-workspace-id.datawarehouse.fabric.microsoft.com",
-
-## 🛡️ Security Note        "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName",
-
-        "UV_LINK_MODE": "copy"
-
-Your credentials are handled securely through the official [Azure Identity SDK](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/identity/Azure.Identity/README.md) - **we never store or manage tokens directly**.      }
-
-    }
-
-## 👥 Contributing  }
-
-}
-
-This project welcomes contributions and suggestions. Most contributions require you to agree to a```
-
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.See the [Quick Start Guide](QUICKSTART_GUIDE.md) for detailed setup instructions.
+### Attach the debugger
+Use the `Python: Attach` configuration in your `launch.json` to attach to the running server. 
+Once VS Code picks up the server and starts it, navigate to its output: 
+1. Open command palette (Ctrl+Shift+P) and run the command `MCP: List Servers`
+2. Navigate to `fabric-rti-mcp` and select `Show Output`
+3. Pick up the process ID (PID) of the server from the output
+4. Run the `Python: Attach` configuration in your `launch.json` file, and paste the PID of the server in the prompt
+5. The debugger will attach to the server process, and you can start debugging
 
 
+## 🧪 Test the MCP Server
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide## 🧪 Testing
+1. Open GitHub Copilot in VS Code and [switch to Agent mode](https://code.visualstudio.com/docs/copilot/chat/chat-agent-mode)
+2. You should see the Fabric RTI MCP Server in the list of tools
+3. Try a prompt that tells the agent to use the Eventhouse tools, such as "List my Kusto tables"
+4. The agent should be able to use the Fabric RTI MCP Server tools to complete your query
 
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
 
-provided by the bot. You will only need to do this once across all repos using our CLA.1. Open GitHub Copilot in VS Code and switch to Agent mode
+## ⚙️ Configuration
 
-2. You should see the Fabric Lakehouse MCP Server in the tools list
-
-## 🤝 Code of Conduct3. Try prompts like:
-
-   - "List all tables in my lakehouse"
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).   - "Show me the schema for the customers table"
-
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or   - "What queries have been run recently?"
-
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-## ⚙️ Configuration Reference
-
-## 📊 Data Collection
+The MCP server can be configured using the following environment variables:
 
 ### Required Environment Variables
 
-The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
-
 | Variable | Description | Example |
-
-## ™️ Trademarks|----------|-------------|---------|
-
+|----------|-------------|---------|
 | `FABRIC_SQL_ENDPOINT` | Your Fabric SQL endpoint (without https://) | `workspace.datawarehouse.fabric.microsoft.com` |
+| `FABRIC_LAKEHOUSE_NAME` | Name of your lakehouse database (case-sensitive) | `MyLakehouse` |
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft | `FABRIC_LAKEHOUSE_NAME` | Name of your lakehouse database (case-sensitive) | `MyLakehouse` |
+### Optional Environment Variables
 
-trademarks or logos is subject to and must follow 
+| Variable | Service | Description | Default | Example |
+|----------|---------|-------------|---------|---------|
+| `FABRIC_API_BASE` | Global | Base URL for Microsoft Fabric API | `https://api.fabric.microsoft.com/v1` | `https://api.fabric.microsoft.com/v1` |
+| `FABRIC_BASE_URL` | Global | Base URL for Microsoft Fabric web interface | `https://fabric.microsoft.com` | `https://fabric.microsoft.com` |
 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).### Optional Environment Variables
+### Embedding Endpoint Configuration
 
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
+The `AZ_OPENAI_EMBEDDING_ENDPOINT` is used by the semantic search functionality (e.g., `kusto_get_shots` function) to find similar query examples. 
 
-Any use of third-party trademarks or logos are subject to those third-party's policies.| Variable | Description | Default | Example |
+**Format Requirements:**
+```
+https://{your-openai-resource}.openai.azure.com/openai/deployments/{deployment-name}/embeddings?api-version={api-version};impersonate
+```
 
-|----------|-------------|---------|---------|
-| `FABRIC_API_BASE` | Base URL for Microsoft Fabric API | `https://api.fabric.microsoft.com/v1` | Custom API endpoint |
-| `FABRIC_BASE_URL` | Base URL for Microsoft Fabric web interface | `https://fabric.microsoft.com` | Custom Fabric URL |
-| `UV_LINK_MODE` | Set to `copy` to avoid OneDrive hardlink issues | - | `copy` |
+**Components:**
+- `{your-openai-resource}`: Your Azure OpenAI resource name
+- `{deployment-name}`: Your text embedding deployment name (e.g., `text-embedding-ada-002`)
+- `{api-version}`: API version (e.g., `2024-10-21`, `2023-05-15`)
+- `;impersonate`: Authentication method (you might use managed identity)
+
+**Authentication Requirements:**
+- Your Azure identity must have access to the OpenAI resource
+- In case using managed identity, the OpenAI resource must should be configured to accept managed identity authentication
+- The deployment must exist and be accessible
+
+### Configuration of Shots Table
+The `kusto_get_shots` tool retrieves shots that are most similar to your prompt from the shots table. This function requires configuration of:
+- **Shots table**: Should have an "EmbeddingText" (string) column containing the natural language prompt, "AugmentedText" (string) column containing the respective KQL, and "EmbeddingVector" (dynamic) column containing the embedding vector of the EmbeddingText.
+- **Azure OpenAI embedding endpoint**: Used to create embedding vectors for your prompt. Note that this endpoint must use the same model that was used for creating the "EmbeddingVector" column in the shots table.
 
 ## 🔑 Authentication
 

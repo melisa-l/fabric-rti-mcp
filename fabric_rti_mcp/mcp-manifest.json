@@ -1,12 +1,12 @@
 {
   "name": "fabric-lakehouse-mcp",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Microsoft Fabric Lakehouse MCP Server - SQL analytics tools for AI agents",
   "schema": "1.0",
   "command": {
     "type": "stdio",
-    "command": "uvx",
-    "args": ["fabric-lakehouse-mcp"]
+    "command": "fabric-lakehouse",
+    "args": []
   },
   "env": {
     "FABRIC_SQL_ENDPOINT": {

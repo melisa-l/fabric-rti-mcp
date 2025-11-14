@@ -2,8 +2,8 @@
 {
   "mcpServers": {
     "fabric-lakehouse": {
-      "command": "uvx",
-      "args": ["fabric-lakehouse-mcp"],
+      "command": "fabric-lakehouse",
+      "args": [],
       "env": {
         "FABRIC_SQL_ENDPOINT": "your-workspace-id.datawarehouse.fabric.microsoft.com",
         "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName",

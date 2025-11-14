@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fabric Lakehouse MCP Configuration",
+  "type": "object",
+  "required": ["mcpServers"],
+  "properties": {
+    "mcpServers": {
+      "type": "object",
+      "properties": {
+        "fabric-lakehouse": {
+          "type": "object",
+          "required": ["command", "args", "env"],
+          "properties": {
+            "command": {
+              "type": "string",
+              "const": "python"
+            },
+            "args": {
+              "type": "array",
+              "items": [
+                { "const": "-m" },
+                { "const": "fabric_rti_mcp.server" }
+              ]
+            },
+            "env": {
+              "type": "object",
+              "required": ["FABRIC_SQL_ENDPOINT", "FABRIC_LAKEHOUSE_NAME"],
+              "properties": {
+                "FABRIC_SQL_ENDPOINT": {
+                  "type": "string",
+                  "description": "The SQL endpoint for your Fabric lakehouse (e.g., workspace.datawarehouse.fabric.microsoft.com)"
+                },
+                "FABRIC_LAKEHOUSE_NAME": {
+                  "type": "string",
+                  "description": "The name of your Fabric lakehouse (case-sensitive)"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      }
+    }
+  }
+}
