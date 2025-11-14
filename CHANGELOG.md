@@ -1,6 +1,11 @@
 # Release History
 
-## 0.3.8 (Upcoming)
+## 0.3.9 (Upcoming)
+### Bug Fixes
+- Fixed mcp-manifest.json to use uvx command for proper VS Code MCP wizard integration
+- Changed from direct executable call to uvx package call
+
+## 0.3.8 (2025-01-14)
 ### Documentation
 - Simplified documentation structure: one README, one quickstart guide, one MCP template
 - Removed duplicate and confusing documentation files
