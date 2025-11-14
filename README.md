@@ -159,8 +159,6 @@ If you want to use the latest version or contribute to development, you can inst
      - Find: Fabric Portal → Lakehouse → SQL endpoint → Copy Server value
      - Format: `your-workspace-name.datawarehouse.fabric.microsoft.com`
    - **FABRIC_LAKEHOUSE_NAME** (Required): Name of your lakehouse database
-   - **KUSTO_SERVICE_URI** (Optional): Your Eventhouse cluster URI for KQL queries
-   - **KUSTO_SERVICE_DEFAULT_DB** (Optional): Default database for Eventhouse queries
 
 6. **Restart VS Code**
    - Close and reopen VS Code for the MCP server to be recognized
@@ -220,22 +218,18 @@ Once VS Code picks up the server and starts it, navigate to its output:
 The MCP server can be configured using the following environment variables:
 
 ### Required Environment Variables
-None - the server will work with default settings for demo purposes.
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `FABRIC_SQL_ENDPOINT` | Your Fabric SQL endpoint (without https://) | `workspace.datawarehouse.fabric.microsoft.com` |
+| `FABRIC_LAKEHOUSE_NAME` | Name of your lakehouse database (case-sensitive) | `MyLakehouse` |
 
 ### Optional Environment Variables
 
 | Variable | Service | Description | Default | Example |
 |----------|---------|-------------|---------|---------|
-| `KUSTO_SERVICE_URI` | Kusto | Default Kusto cluster URI | None | `https://mycluster.westus.kusto.windows.net` |
-| `KUSTO_SERVICE_DEFAULT_DB` | Kusto | Default database name for Kusto queries | `NetDefaultDB` | `MyDatabase` |
-| `AZ_OPENAI_EMBEDDING_ENDPOINT` | Kusto | Azure OpenAI embedding endpoint for semantic search in `kusto_get_shots` | None | `https://your-resource.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings?api-version=2024-10-21;impersonate` |
-| `KUSTO_KNOWN_SERVICES` | Kusto | JSON array of preconfigured Kusto services | None | `[{"service_uri":"https://cluster1.kusto.windows.net","default_database":"DB1","description":"Prod"}]` |
-| `KUSTO_EAGER_CONNECT` | Kusto | Whether to eagerly connect to default service on startup (not recommended) | `false` | `true` or `false` |
-| `KUSTO_ALLOW_UNKNOWN_SERVICES` | Kusto | Security setting to allow connections to services not in `KUSTO_KNOWN_SERVICES` | `true` | `true` or `false` |
 | `FABRIC_API_BASE` | Global | Base URL for Microsoft Fabric API | `https://api.fabric.microsoft.com/v1` | `https://api.fabric.microsoft.com/v1` |
 | `FABRIC_BASE_URL` | Global | Base URL for Microsoft Fabric web interface | `https://fabric.microsoft.com` | `https://fabric.microsoft.com` |
-| `SQL_LAKEHOUSE_ENDPOINT` | SQL | SQL lakehouse endpoint URL | None | `your-lakehouse.sql.azuresynapse.net` |
-| `SQL_LAKEHOUSE_DATABASE` | SQL | Default database name for SQL lakehouse | None | `your_database_name` |
 
 ### Embedding Endpoint Configuration
 

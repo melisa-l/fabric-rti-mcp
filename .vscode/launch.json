@@ -17,7 +17,8 @@
             "program": "fabric_rti_mcp/server.py",
             "console": "integratedTerminal",
             "env": {
-                "KUSTO_SERVICE_URI": "https://help.kusto.windows.net/"
+                "FABRIC_SQL_ENDPOINT": "your-workspace.datawarehouse.fabric.microsoft.com",
+                "FABRIC_LAKEHOUSE_NAME": "YourLakehouse"
             }
         },
         // debug tests
@@ -31,7 +32,8 @@
             ],
             "console": "integratedTerminal",
             "env": {
-                "KUSTO_SERVICE_URI": "https://help.kusto.windows.net/"
+                "FABRIC_SQL_ENDPOINT": "your-workspace.datawarehouse.fabric.microsoft.com",
+                "FABRIC_LAKEHOUSE_NAME": "YourLakehouse"
             }
         }
     ]

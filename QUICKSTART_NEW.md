@@ -422,13 +422,6 @@ Find relationships between tables in my lakehouse
 - Learn about [query history tracking](README.md)
 - See [advanced configuration](README.md#️-configuration) options
 
-## Add Optional Features
-
-Want to also query Eventhouse with KQL? Add these variables when running "MCP: Add Server":
-
-- `KUSTO_SERVICE_URI`: Your Eventhouse cluster URI
-- `KUSTO_SERVICE_DEFAULT_DB`: Default database name
-
 ## Get Help
 
 - **Issues?** [Open a GitHub issue](https://github.com/melisa-l/fabric-rti-mcp/issues)

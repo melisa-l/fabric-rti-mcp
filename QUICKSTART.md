@@ -426,9 +426,7 @@ If you also want to query Eventhouse with KQL, add these to your `env` section:
 ```json
 "env": {
     "FABRIC_SQL_ENDPOINT": "workspace.datawarehouse.fabric.microsoft.com",
-    "FABRIC_LAKEHOUSE_NAME": "MyLakehouse",
-    "KUSTO_SERVICE_URI": "https://your-cluster.kusto.windows.net/",
-    "KUSTO_SERVICE_DEFAULT_DB": "YourDatabase"
+    "FABRIC_LAKEHOUSE_NAME": "MyLakehouse"
 }
 ```
 

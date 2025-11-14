@@ -21,8 +21,8 @@ Environment variables used by examples
 - `FABRIC_RTI_HTTP_HOST` - host for MCP HTTP server (default `127.0.0.1`)
 - `FABRIC_RTI_HTTP_PORT` - port for MCP HTTP server (default `3000`)
 - `FABRIC_RTI_MCP_TOKEN` - Bearer token used by examples to authenticate to MCP HTTP API (if required)
-- `SQL_LAKEHOUSE_ENDPOINT` - SQL endpoint for lakehouse (used by some examples)
-- `SQL_LAKEHOUSE_DATABASE` - Default database name to inspect
+- `FABRIC_SQL_ENDPOINT` - SQL endpoint for lakehouse
+- `FABRIC_LAKEHOUSE_NAME` - Lakehouse database name
 
 Files added in `examples/`
 -------------------------
