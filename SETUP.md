@@ -48,11 +48,15 @@ This guide will help you set up the environment for working with Fabric RTI MCP 
    # Windows PowerShell
    $env:FABRIC_SQL_ENDPOINT = "your-endpoint.fabric.microsoft.com"
    $env:FABRIC_LAKEHOUSE_NAME = "YourLakehouseName"
+   $env:FABRIC_RTI_DEFAULT_MODEL = "gpt-5"  # Default model for LLM operations
 
    # Linux/macOS
    export FABRIC_SQL_ENDPOINT="your-endpoint.fabric.microsoft.com"
    export FABRIC_LAKEHOUSE_NAME="YourLakehouseName"
+   export FABRIC_RTI_DEFAULT_MODEL="gpt-5"  # Default model for LLM operations
    ```
+
+   **Note**: The default model is set to `gpt-5`. You can override this by setting the `FABRIC_RTI_DEFAULT_MODEL` environment variable to a different model (e.g., `gpt-4`, `gpt-4o`, `gpt-3.5-turbo`).
 
 ## Verifying Setup
 

@@ -20,6 +20,7 @@ class GlobalFabricRTIEnvVarNames:
     http_path = "FABRIC_RTI_HTTP_PATH"
     stateless_http = "FABRIC_RTI_STATELESS_HTTP"
     use_obo_flow = "USE_OBO_FLOW"
+    default_model = "FABRIC_RTI_DEFAULT_MODEL"
 
 
 DEFAULT_FABRIC_API_BASE = "https://api.fabric.microsoft.com/v1"
@@ -30,6 +31,7 @@ DEFAULT_FABRIC_RTI_HTTP_PATH = "/mcp"
 DEFAULT_FABRIC_RTI_HTTP_HOST = "127.0.0.1"
 DEFAULT_FABRIC_RTI_STATELESS_HTTP = False
 DEFAULT_USE_OBO_FLOW = False
+DEFAULT_MODEL = "gpt-5"
 
 
 @dataclass(slots=True, frozen=True)
@@ -42,6 +44,7 @@ class GlobalFabricRTIConfig:
     http_path: str
     stateless_http: bool
     use_obo_flow: bool
+    default_model: str
 
     @staticmethod
     def from_env() -> GlobalFabricRTIConfig:
@@ -64,6 +67,7 @@ class GlobalFabricRTIConfig:
                 os.getenv(GlobalFabricRTIEnvVarNames.stateless_http, DEFAULT_FABRIC_RTI_STATELESS_HTTP)
             ),
             use_obo_flow=bool(os.getenv(GlobalFabricRTIEnvVarNames.use_obo_flow, DEFAULT_USE_OBO_FLOW)),
+            default_model=os.getenv(GlobalFabricRTIEnvVarNames.default_model, DEFAULT_MODEL),
         )
 
     @staticmethod
@@ -79,6 +83,7 @@ class GlobalFabricRTIConfig:
             GlobalFabricRTIEnvVarNames.http_path,
             GlobalFabricRTIEnvVarNames.stateless_http,
             GlobalFabricRTIEnvVarNames.use_obo_flow,
+            GlobalFabricRTIEnvVarNames.default_model,
         ]
         for env_var in env_vars:
             if os.getenv(env_var) is not None:
@@ -119,6 +124,7 @@ class GlobalFabricRTIConfig:
             http_path=base_config.http_path,
             stateless_http=stateless_http,
             use_obo_flow=use_obo_flow,
+            default_model=base_config.default_model,
         )
 
 

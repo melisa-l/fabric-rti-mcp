@@ -17,7 +17,6 @@ from fabric_rti_mcp.common import logger
 from fabric_rti_mcp.activator import activator_tools
 from fabric_rti_mcp.eventstream import eventstream_tools
 from fabric_rti_mcp.kusto import kusto_config, kusto_tools
-# ✅ No need to import lakehouse_sql_query explicitly if using @tool decorator
 
 # Global variable to store server start time
 server_start_time = datetime.now(timezone.utc)
@@ -60,7 +59,6 @@ def register_tools(mcp: FastMCP) -> None:
     eventstream_tools.register_tools(mcp)
     activator_tools.register_tools(mcp)
 
-    # ✅ Lakehouse SQL tool will auto-register via @tool decorator in lakehouse_sql_tool.py
     logger.info("Lakehouse SQL Tool will be loaded if @tool decorator is applied.")
 
 
@@ -77,6 +75,7 @@ def main() -> None:
         logger.info(f"Platform: {sys.platform}")
         logger.info(f"PID: {os.getpid()}")
         logger.info(f"Transport: {config.transport}")
+        logger.info(f"Default Model: {config.default_model}")
 
         if config.transport == "http":
             logger.info(f"Host: {config.http_host}")
