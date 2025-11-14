@@ -1,12 +1,12 @@
 {
   "name": "fabric-lakehouse-mcp",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "description": "Microsoft Fabric Lakehouse MCP Server - SQL analytics tools for AI agents",
   "schema": "1.0",
   "command": {
     "type": "stdio",
-    "command": "python",
-    "args": ["-m", "fabric_rti_mcp.server"]
+    "command": "uvx",
+    "args": ["fabric-lakehouse-mcp"]
   },
   "env": {
     "FABRIC_SQL_ENDPOINT": {
@@ -18,6 +18,12 @@
       "required": true,
       "description": "The name of your Fabric lakehouse (case-sensitive)",
       "type": "string"
+    },
+    "UV_LINK_MODE": {
+      "required": false,
+      "description": "Set to 'copy' to avoid hardlink issues on OneDrive (recommended for Windows users)",
+      "type": "string",
+      "default": "copy"
     }
   }
 }

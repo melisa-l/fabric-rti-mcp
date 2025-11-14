@@ -2,11 +2,12 @@
 	"servers": {
 		"fabric-lakehouse": {
 			"type": "stdio",
-			"command": "python",
-			"args": ["-m", "fabric_rti_mcp.server"],
+			"command": "uvx",
+			"args": ["fabric-lakehouse-mcp"],
 			"env": {
 				"FABRIC_SQL_ENDPOINT": "${input:fabric_sql_endpoint}",
-				"FABRIC_LAKEHOUSE_NAME": "${input:fabric_lakehouse_name}"
+				"FABRIC_LAKEHOUSE_NAME": "${input:fabric_lakehouse_name}",
+				"UV_LINK_MODE": "copy"
 			}
 		}
 	},
