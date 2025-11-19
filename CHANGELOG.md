@@ -1,6 +1,23 @@
 # Release History
 
-## 0.3.9 (Upcoming)
+## 0.3.11 (Upcoming)
+### Breaking Changes
+- **Removed uvx dependency** - Use direct pip installation: `pip install fabric-lakehouse-mcp`
+- Command changed to direct executable call: `fabric-lakehouse`
+- Simplified to only 2 required environment variables (removed UV_LINK_MODE)
+
+### Improvements
+- Cleaner installation experience for new users
+- Fixed version mismatch issues
+- Reduced configuration complexity
+- More reliable across different environments
+
+## 0.3.10 (2025-01-14)
+### Bug Fixes
+- Fixed uvx command syntax to use --from flag with correct executable name
+- New users will now get proper configuration: `uvx --from fabric-lakehouse-mcp fabric-lakehouse`
+
+## 0.3.9 (2025-01-14)
 ### Bug Fixes
 - Fixed mcp-manifest.json to use uvx command for proper VS Code MCP wizard integration
 - Changed from direct executable call to uvx package call

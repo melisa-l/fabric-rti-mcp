@@ -6,8 +6,7 @@
       "args": [],
       "env": {
         "FABRIC_SQL_ENDPOINT": "your-workspace-id.datawarehouse.fabric.microsoft.com",
-        "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName",
-        "UV_LINK_MODE": "copy"
+        "FABRIC_LAKEHOUSE_NAME": "YourLakehouseName"
       }
     }
   }
