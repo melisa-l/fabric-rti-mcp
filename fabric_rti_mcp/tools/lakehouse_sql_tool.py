@@ -191,7 +191,10 @@ def lakehouse_find_potential_relationships() -> List[Tuple[str, str, str, str, s
     This is useful when formal foreign keys aren't defined (common in lakehouses).
     
     Looks for columns that end with common suffixes like: Id, ID, Key, Ref, Code, etc.
-    and match between tables.
+    and match between tables. Limited to first 100 matches to prevent timeouts.
+    
+    Note: This can be slow on large schemas. Consider using lakehouse_sql_query() 
+    to find relationships for specific tables instead if you know which tables to check.
     
     Returns:
         List of tuples: (table1_schema, table1_name, table2_schema, table2_name, matching_column)
@@ -205,24 +208,38 @@ def lakehouse_find_potential_relationships() -> List[Tuple[str, str, str, str, s
             FROM sys.tables t
             INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
             INNER JOIN sys.columns c ON t.object_id = c.object_id
-            WHERE c.name LIKE '%Id' 
-               OR c.name LIKE '%ID' 
-               OR c.name LIKE '%Key'
-               OR c.name LIKE '%Code'
-               OR c.name LIKE '%Ref'
+            WHERE s.name NOT IN ('sys', 'INFORMATION_SCHEMA')  -- Exclude system schemas
+              AND (
+                c.name LIKE '%Id' 
+                OR c.name LIKE '%ID' 
+                OR c.name LIKE '%Key'
+                OR c.name LIKE '%Code'
+                OR c.name LIKE '%Ref'
+              )
+        ),
+        RankedMatches AS (
+            SELECT DISTINCT
+                c1.schema_name AS table1_schema,
+                c1.table_name AS table1_name,
+                c2.schema_name AS table2_schema,
+                c2.table_name AS table2_name,
+                c1.column_name AS matching_column,
+                ROW_NUMBER() OVER (ORDER BY c1.schema_name, c1.table_name) AS rn
+            FROM ColumnNames c1
+            INNER JOIN ColumnNames c2 
+                ON c1.column_name = c2.column_name
+                AND (c1.schema_name != c2.schema_name OR c1.table_name != c2.table_name)
+            WHERE c1.table_name < c2.table_name  -- Avoid duplicates
         )
-        SELECT DISTINCT
-            c1.schema_name AS table1_schema,
-            c1.table_name AS table1_name,
-            c2.schema_name AS table2_schema,
-            c2.table_name AS table2_name,
-            c1.column_name AS matching_column
-        FROM ColumnNames c1
-        INNER JOIN ColumnNames c2 
-            ON c1.column_name = c2.column_name
-            AND (c1.schema_name != c2.schema_name OR c1.table_name != c2.table_name)
-        WHERE c1.table_name < c2.table_name  -- Avoid duplicates
-        ORDER BY c1.schema_name, c1.table_name, c2.schema_name, c2.table_name
+        SELECT 
+            table1_schema,
+            table1_name,
+            table2_schema,
+            table2_name,
+            matching_column
+        FROM RankedMatches
+        WHERE rn <= 100  -- Limit to first 100 relationships to prevent timeouts
+        ORDER BY table1_schema, table1_name, table2_schema, table2_name
     """
     return lakehouse_sql_query(query)
 
