@@ -12,6 +12,7 @@ from fabric_rti_mcp.tools.lakehouse_sql_tool import (
     lakehouse_find_relationships,
     lakehouse_find_potential_relationships,
     lakehouse_find_primary_keys,
+    lakehouse_get_schema_stats,
 )
 
 
@@ -50,5 +51,10 @@ def register_tools(mcp: FastMCP) -> None:
     
     mcp.add_tool(
         lakehouse_find_primary_keys,
+        annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False),
+    )
+    
+    mcp.add_tool(
+        lakehouse_get_schema_stats,
         annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False),
     )

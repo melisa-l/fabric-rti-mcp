@@ -8,7 +8,8 @@ dynamic = ["version"]
 description = "Microsoft Fabric Lakehouse MCP Server - SQL analytics tools for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = {text = "MIT"}
+keywords = ["mcp", "model-context-protocol", "microsoft-fabric", "lakehouse", "sql"]
 classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -16,6 +17,8 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
     "Development Status :: 2 - Pre-Alpha",
+    "Framework :: FastMCP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
     "httpx~=0.28.1",
@@ -33,9 +36,15 @@ dev = [
     "mypy>=1.0.0",
     "pytest>=7.0.0"
 ]
+clipboard = [
+    "pyperclip>=1.8.0"
+]
 
 [project.scripts]
 fabric-lakehouse = "fabric_rti_mcp.server:main"
+
+[project.entry-points."mcp.servers"]
+fabric-lakehouse = "fabric_rti_mcp:get_mcp_config"
 
 [project.urls]
 Homepage = "https://github.com/melisa-l/fabric-rti-mcp"

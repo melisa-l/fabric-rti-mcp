@@ -1,9 +1,11 @@
 
+import json
 import os
 import signal
 import sys
 import types
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
@@ -57,8 +59,76 @@ def register_tools(mcp: FastMCP) -> None:
     logger.info("All tools registered successfully.")
 
 
+def print_mcp_config() -> None:
+    """Print the MCP configuration for easy copying to Copilot settings."""
+    # Try to find the mcp-manifest.json file
+    package_dir = Path(__file__).parent
+    manifest_path = package_dir / "mcp-manifest.json"
+    
+    if manifest_path.exists():
+        with open(manifest_path, 'r') as f:
+            config_data = json.load(f)
+    else:
+        # Fallback to hardcoded config
+        config_data = {
+            "servers": {
+                "fabric-lakehouse": {
+                    "command": "fabric-lakehouse",
+                    "args": [],
+                    "env": {
+                        "FABRIC_SQL_ENDPOINT": "${input:FABRIC_SQL_ENDPOINT}",
+                        "FABRIC_LAKEHOUSE_NAME": "${input:FABRIC_LAKEHOUSE_NAME}"
+                    },
+                    "type": "stdio"
+                }
+            },
+            "inputs": [
+                {
+                    "id": "FABRIC_SQL_ENDPOINT",
+                    "type": "promptString",
+                    "description": "Enter the SQL endpoint for your Fabric lakehouse (e.g., workspace.datawarehouse.fabric.microsoft.com)"
+                },
+                {
+                    "id": "FABRIC_LAKEHOUSE_NAME",
+                    "type": "promptString",
+                    "description": "Enter the name of your Fabric lakehouse (case-sensitive)"
+                }
+            ]
+        }
+    
+    config_json = json.dumps(config_data, indent=2)
+    
+    # Try to copy to clipboard
+    try:
+        import pyperclip
+        pyperclip.copy(config_json)
+        clipboard_msg = "✅ Configuration copied to clipboard!"
+    except ImportError:
+        clipboard_msg = "💡 Install 'pyperclip' to auto-copy: pip install pyperclip"
+    except Exception:
+        clipboard_msg = "⚠️  Could not copy to clipboard automatically"
+    
+    print("\n" + "="*80)
+    print("MCP Configuration for GitHub Copilot")
+    print("="*80 + "\n")
+    print(config_json)
+    print("\n" + "="*80)
+    print(clipboard_msg)
+    print("\nConfiguration file location (varies by OS):")
+    print("  Windows: %APPDATA%\\Code\\User\\globalStorage\\github.copilot-chat\\mcp.json")
+    print("  macOS: ~/Library/Application Support/Code/User/globalStorage/github.copilot-chat/mcp.json")
+    print("  Linux: ~/.config/Code/User/globalStorage/github.copilot-chat/mcp.json")
+    print("\n💡 Tip: You may need to create the 'github.copilot-chat' directory if it doesn't exist")
+    print("="*80 + "\n")
+
+
 def main() -> None:
     """Main entry point for the server."""
+    # Check for --print-config flag
+    if len(sys.argv) > 1 and sys.argv[1] == "--print-config":
+        print_mcp_config()
+        return
+    
     try:
         # Signal handlers for graceful shutdown
         signal.signal(signal.SIGINT, setup_shutdown_handler)

@@ -25,6 +25,12 @@ az login
 pip install fabric-lakehouse-mcp
 ```
 
+**Tip**: After installation, you can print the MCP configuration template:
+```bash
+fabric-lakehouse --print-config
+```
+This will display the exact configuration you need to copy into your MCP settings.
+
 ## Step 3: Get Your Fabric Lakehouse Information
 
 You need two pieces of information:
