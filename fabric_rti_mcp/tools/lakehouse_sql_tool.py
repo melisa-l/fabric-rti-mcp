@@ -40,7 +40,12 @@ def _get_connection():
     
     # Get access token (automatically cached and refreshed by azure-identity)
     # Scope for Azure SQL Database / Fabric SQL Endpoint
-    token = _credential.get_token("https://database.windows.net/.default")
+        # Use Azure CLI token explicitly for immediate testing
+        import subprocess, json
+        result = subprocess.run([
+            "az", "account", "get-access-token", "--resource", "https://database.windows.net/"
+        ], capture_output=True, text=True)
+        token = json.loads(result.stdout)["accessToken"]
     
     # Convert token to bytes for pyodbc
     token_bytes = token.token.encode("utf-16-le")
@@ -243,9 +248,8 @@ def lakehouse_find_potential_relationships(schema_name: Optional[str] = None) ->
         INNER JOIN sys.schemas s1 ON t1.schema_id = s1.schema_id
         INNER JOIN sys.tables t2 ON c2.object_id = t2.object_id
         INNER JOIN sys.schemas s2 ON t2.schema_id = s2.schema_id
-        OPTION (MAXDOP 1, FAST 20)
     """
-    return lakehouse_sql_query(query, timeout=5)  # 5 second timeout
+    return lakehouse_sql_query(query, timeout=10)  # 10 second timeout
 
 
 def lakehouse_find_primary_keys() -> List[Tuple[str, str, str, int]]:
@@ -303,4 +307,6 @@ def lakehouse_get_schema_stats() -> List[Tuple[str, int, int]]:
         GROUP BY s.name
         ORDER BY table_count DESC
     """
-    return lakehouse_sql_query(query)
+    # Ensure row_count is always an integer (default to 0 if None)
+    results = lakehouse_sql_query(query)
+    return [(schema, table, row_count or 0) for (schema, table, row_count) in results]

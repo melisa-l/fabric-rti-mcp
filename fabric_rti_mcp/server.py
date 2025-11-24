@@ -16,7 +16,12 @@ from fabric_rti_mcp import __version__
 from fabric_rti_mcp.authentication.auth_middleware import add_auth_middleware
 from fabric_rti_mcp.common import global_config as config
 from fabric_rti_mcp.common import logger
-from fabric_rti_mcp.tools import query_history_mcp_tools, lakehouse_sql_mcp_tools
+from fabric_rti_mcp.tools import (
+    query_history_mcp_tools,
+    lakehouse_sql_mcp_tools,
+    query_suggestions_mcp_tools,
+    semantic_model_mcp_tools,
+)
 
 # Global variable to store server start time
 server_start_time = datetime.now(timezone.utc)
@@ -54,7 +59,50 @@ def register_tools(mcp: FastMCP) -> None:
 
     # Register SQL Lakehouse tools
     query_history_mcp_tools.register_tools(mcp)
-    lakehouse_sql_mcp_tools.register_tools(mcp)
+    # Defensive wrapper for lakehouse_list_tables to ensure row_count is always int
+    from fabric_rti_mcp.tools.lakehouse_sql_tool import lakehouse_list_tables as raw_lakehouse_list_tables
+    def safe_lakehouse_list_tables():
+        results = raw_lakehouse_list_tables()
+        return [
+            (schema, table, int(row_count) if row_count is not None else 0)
+            for (schema, table, row_count) in results
+        ]
+    # Register all other tools as usual
+    from fabric_rti_mcp.tools.lakehouse_sql_mcp_tools import (
+        lakehouse_sql_query,
+        lakehouse_describe_table,
+        lakehouse_sample_table,
+        lakehouse_find_relationships,
+        lakehouse_find_potential_relationships,
+        lakehouse_find_primary_keys,
+        lakehouse_get_schema_stats,
+    )
+    mcp.add_tool(
+        lakehouse_sql_query,
+    )
+    mcp.add_tool(
+        safe_lakehouse_list_tables,
+    )
+    mcp.add_tool(
+        lakehouse_describe_table,
+    )
+    mcp.add_tool(
+        lakehouse_sample_table,
+    )
+    mcp.add_tool(
+        lakehouse_find_relationships,
+    )
+    mcp.add_tool(
+        lakehouse_find_potential_relationships,
+    )
+    mcp.add_tool(
+        lakehouse_find_primary_keys,
+    )
+    mcp.add_tool(
+        lakehouse_get_schema_stats,
+    )
+    query_suggestions_mcp_tools.register_tools(mcp)
+    semantic_model_mcp_tools.register_tools(mcp)
 
     logger.info("All tools registered successfully.")
 
