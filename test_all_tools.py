@@ -37,7 +37,7 @@ except Exception as e:
 
 print("\nTesting get_exploration_guide...")
 try:
-    guide = get_exploration_guide()
+    guide = get_exploration_guide("Starbase")
     print("get_exploration_guide output:", guide)
 except Exception as e:
     print("get_exploration_guide error:", e)

@@ -6,7 +6,7 @@ import sys
 import types
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from mcp.server.fastmcp import FastMCP
 from starlette.requests import Request
@@ -59,47 +59,10 @@ def register_tools(mcp: FastMCP) -> None:
 
     # Register SQL Lakehouse tools
     query_history_mcp_tools.register_tools(mcp)
-    # Defensive wrapper for lakehouse_list_tables to ensure row_count is always int
-    from fabric_rti_mcp.tools.lakehouse_sql_tool import lakehouse_list_tables as raw_lakehouse_list_tables
-    def safe_lakehouse_list_tables():
-        results = raw_lakehouse_list_tables()
-        return [
-            (schema, table, int(row_count) if row_count is not None else 0)
-            for (schema, table, row_count) in results
-        ]
-    # Register all other tools as usual
-    from fabric_rti_mcp.tools.lakehouse_sql_mcp_tools import (
-        lakehouse_sql_query,
-        lakehouse_describe_table,
-        lakehouse_sample_table,
-        lakehouse_find_relationships,
-        lakehouse_find_potential_relationships,
-        lakehouse_find_primary_keys,
-        lakehouse_get_schema_stats,
-    )
+    # Register lakehouse_list_tables (schema and table name only)
+    from fabric_rti_mcp.tools.lakehouse_sql_tool import lakehouse_list_tables
     mcp.add_tool(
-        lakehouse_sql_query,
-    )
-    mcp.add_tool(
-        safe_lakehouse_list_tables,
-    )
-    mcp.add_tool(
-        lakehouse_describe_table,
-    )
-    mcp.add_tool(
-        lakehouse_sample_table,
-    )
-    mcp.add_tool(
-        lakehouse_find_relationships,
-    )
-    mcp.add_tool(
-        lakehouse_find_potential_relationships,
-    )
-    mcp.add_tool(
-        lakehouse_find_primary_keys,
-    )
-    mcp.add_tool(
-        lakehouse_get_schema_stats,
+        lakehouse_list_tables,
     )
     query_suggestions_mcp_tools.register_tools(mcp)
     semantic_model_mcp_tools.register_tools(mcp)

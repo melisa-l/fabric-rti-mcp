@@ -154,6 +154,12 @@ WHERE [{num_col}] IS NOT NULL""",
     return suggestions
 
 
+def get_exploration_guide(schema_name: str) -> Dict[str, Any]:
+    """
+    Alias for get_exploration_path. Generates a guided exploration path for a schema.
+    """
+    return get_exploration_path(schema_name)
+
 def get_exploration_path(schema_name: str) -> Dict[str, Any]:
     """
     Generate a guided exploration path for a schema.

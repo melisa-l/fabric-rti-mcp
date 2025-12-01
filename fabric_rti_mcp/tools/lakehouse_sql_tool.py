@@ -3,64 +3,294 @@ Lakehouse SQL tools for querying and exploring Fabric Lakehouse data.
 """
 
 import os
+import logging
+from dotenv import load_dotenv
+load_dotenv()
 import struct
 from typing import List, Tuple, Optional
 import pyodbc
 from azure.identity import DefaultAzureCredential
 
+# Tool registration
+def register_tools(mcp):
+    """
+    Register lakehouse SQL and semantic model tools with MCP.
+    """
+    mcp.add_tool(
+        name="lakehouse_sql_query",
+        func=lakehouse_sql_query,
+        description="Execute a SQL query against Fabric Lakehouse using the SQL endpoint. Args: query (str). Returns: List of tuples."
+    )
+    mcp.add_tool(
+        name="lakehouse_list_tables",
+        func=lakehouse_list_tables,
+        description="List all tables in the lakehouse with their schemas. Returns: List of tuples (schema_name, table_name)."
+    )
+    mcp.add_tool(
+        name="lakehouse_describe_table",
+        func=lakehouse_describe_table,
+        description="Get detailed schema information for a specific table. Args: schema_name (str), table_name (str). Returns: List of tuples."
+    )
+    mcp.add_tool(
+        name="lakehouse_sample_table",
+        func=lakehouse_sample_table,
+        description="Get sample rows from a table to preview the data. Args: schema_name (str), table_name (str), limit (int, optional). Returns: List of tuples."
+    )
+    mcp.add_tool(
+        name="lakehouse_find_relationships",
+        func=lakehouse_find_relationships,
+        description="Find foreign key relationships between tables in the lakehouse. Returns: List of tuples (parent_schema, parent_table, parent_column, child_schema, child_table, child_column)."
+    )
+    mcp.add_tool(
+        name="lakehouse_find_primary_keys",
+        func=lakehouse_find_primary_keys,
+        description="Find all primary key columns across all tables. Returns: List of tuples (schema_name, table_name, column_name, ordinal_position)."
+    )
+    mcp.add_tool(
+        name="lakehouse_get_schema_stats",
+        func=lakehouse_get_schema_stats,
+        description="Get statistics about the schema to help diagnose performance issues. Returns: List of tuples (schema_name, table_count, column_count)."
+    )
+    mcp.add_tool(
+        name="get_semantic_model_connection",
+        func=get_semantic_model_connection,
+        description="Get the connection string for the semantic model (Power BI endpoint). Returns: str."
+    )
+    mcp.add_tool(
+        name="semantic_model_query",
+        func=semantic_model_query,
+        description="Query the semantic model using the Power BI endpoint. Args: query (str). Returns: List of tuples."
+    )
+    mcp.add_tool(
+        name="semantic_model_list_relationships",
+        func=semantic_model_list_relationships,
+        description="List table relationships from the Power BI semantic model. Returns: List of tuples (from_table, from_column, to_table, to_column)."
+    )
+    mcp.add_tool(
+        name="test_semantic_model_connection",
+        func=test_semantic_model_connection,
+        description="Test connectivity to the Power BI semantic model endpoint. Returns: True if connection succeeds, raises error otherwise."
+    )
+# List relationships from the semantic model using DMVs
+def test_semantic_model_connection() -> bool:
+    """
+    Test connectivity to the Power BI semantic model endpoint.
+    Returns True if connection succeeds, raises error otherwise.
+    """
+    conn_str = get_semantic_model_connection()
+    try:
+        from pyadomd import Pyadomd
+    except ImportError:
+        logging.error("pyadomd is required for semantic model queries. Install with 'pip install pyadomd'.")
+        raise
+    try:
+        with Pyadomd(conn_str) as conn:
+            # Try a trivial DMV query
+            with conn.cursor() as cur:
+                cur.execute("SELECT * FROM $SYSTEM.TMSCHEMA_TABLES")
+                _ = cur.fetchone()
+        logging.info("Successfully connected to semantic model endpoint.")
+        return True
+    except Exception as e:
+        logging.error(f"Error connecting to semantic model endpoint: {e}")
+        raise
+
+
+def lakehouse_list_tables_v2() -> List[Tuple[str, str, int]]:
+    """
+    List all tables in the lakehouse with their schemas and row counts.
+    
+    Returns:
+        List of tuples: (schema_name, table_name, row_count)
+    """
+    query = """
+        SELECT 
+            s.name AS schema_name,
+            t.name AS table_name,
+            ISNULL(SUM(p.rows), 0) AS row_count
+        FROM sys.tables t
+        INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+        INNER JOIN sys.partitions p ON t.object_id = p.object_id
+        WHERE p.index_id IN (0, 1)  -- heap or clustered index
+        GROUP BY s.name, t.name
+        ORDER BY s.name, t.name
+    """
+    logging.info("Listing all tables in the lakehouse with row counts...")
+    results = lakehouse_sql_query(query)
+    def safe_int(val):
+        try:
+            return int(val) if val is not None else 0
+        except (ValueError, TypeError):
+            return 0
+    filtered = [(row[0], row[1], safe_int(row[2])) for row in results]
+    logging.info(f"Found {len(filtered)} tables (row_count coerced to int).")
+    return filtered
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+
+
 # Global credential object - initialized once, reused for all requests
-# DefaultAzureCredential automatically caches tokens and handles refresh
 _credential = None
+
+"""
+Configuration:
+  - Set FABRIC_SQL_ENDPOINT in your .env for the SQL endpoint (e.g. workspace/lakehouse SQL server)
+  - Set FABRIC_LAKEHOUSE_NAME in your .env for the database name
+  - Set FABRIC_SEMANTIC_MODEL_CONNECTION in your .env for the semantic model endpoint (e.g. powerbi://api.powerbi.com/v1.0/myorg/HMCClinic2026)
+"""
+
+# SQL endpoint connection string parts
+SQL_ENDPOINT = os.getenv("FABRIC_SQL_ENDPOINT")
+LAKEHOUSE_NAME = os.getenv("FABRIC_LAKEHOUSE_NAME")
+# Semantic model connection string (Power BI endpoint)
+SEMANTIC_MODEL_CONNECTION = os.getenv("FABRIC_SEMANTIC_MODEL_CONNECTION")
+
+# Helper to validate config
+def validate_config():
+    missing = []
+    if not SQL_ENDPOINT:
+        missing.append("FABRIC_SQL_ENDPOINT")
+    if not LAKEHOUSE_NAME:
+        missing.append("FABRIC_LAKEHOUSE_NAME")
+    if not SEMANTIC_MODEL_CONNECTION:
+        missing.append("FABRIC_SEMANTIC_MODEL_CONNECTION")
+    if missing:
+        raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}. Please set them in your .env file.")
+
 
 
 def _get_connection():
+        """
+        Get a connection to the lakehouse SQL endpoint using Azure authentication.
+        Uses DefaultAzureCredential which tries authentication methods in order:
+            1. Azure CLI (recommended - run 'az login' once)
+            2. Environment variables
+            3. Managed Identity (for Azure-hosted deployments)
+            4. Visual Studio Code
+            5. Interactive browser (fallback)
+        Tokens are automatically cached and refreshed by azure-identity library.
+        """
+        global _credential
+        validate_config()
+        sql_endpoint = SQL_ENDPOINT
+        database = LAKEHOUSE_NAME
+# Add a stub for semantic model connection (Power BI)
+def get_semantic_model_connection() -> str:
     """
-    Get a connection to the lakehouse SQL endpoint using Azure authentication.
-    
-    Uses DefaultAzureCredential which tries authentication methods in order:
-    1. Azure CLI (recommended - run 'az login' once)
-    2. Environment variables
-    3. Managed Identity (for Azure-hosted deployments)
-    4. Visual Studio Code
-    5. Interactive browser (fallback)
-    
-    Tokens are automatically cached and refreshed by azure-identity library.
+    Get the connection string for the semantic model (Power BI endpoint).
+    Returns: str
     """
-    global _credential
-    
-    sql_endpoint = os.getenv("FABRIC_SQL_ENDPOINT")
-    database = os.getenv("FABRIC_LAKEHOUSE_NAME")
-    
-    if not sql_endpoint or not database:
-        raise ValueError("FABRIC_SQL_ENDPOINT and FABRIC_LAKEHOUSE_NAME must be set")
-    
+    validate_config()
+    conn_str = SEMANTIC_MODEL_CONNECTION or "powerbi://api.powerbi.com/v1.0/myorg/HMCClinic2026"
+    if not conn_str:
+        logging.error("FABRIC_SEMANTIC_MODEL_CONNECTION must be set")
+        raise ValueError("FABRIC_SEMANTIC_MODEL_CONNECTION must be set")
+    return conn_str
+
+
+# Semantic model query stub (to be implemented with Power BI API or pyadomd)
+# Semantic model query stub (to be implemented with Power BI API or pyadomd)
+def semantic_model_query(query: str) -> List[Tuple]:
+    """
+    Query the semantic model using the Power BI endpoint.
+    Args:
+        query: DAX or MDX query to execute
+    Returns:
+        List of tuples containing query results
+    """
+    logging.info(f"Semantic model query requested: {query}")
+    conn_str = get_semantic_model_connection()
+    try:
+        from pyadomd import Pyadomd
+    except ImportError:
+        logging.error("pyadomd is required for semantic model queries. Install with 'pip install pyadomd'.")
+        raise
+
+    try:
+        with Pyadomd(conn_str) as conn:
+            # ...existing code for semantic model query...
+            # You should add the actual query logic here
+            pass
+    except Exception as e:
+        logging.error(f"Error executing semantic model query: {e}")
+        raise
+
+
+# List relationships from the semantic model using DMVs
+def semantic_model_list_relationships() -> List[Tuple[str, str, str, str]]:
+    """
+    List table relationships from the Power BI semantic model using DMVs.
+    Returns:
+        List of tuples: (from_table, from_column, to_table, to_column)
+
+    Usage:
+        Only works with semantic model (Power BI endpoint) via pyadomd, not SQL endpoint.
+        Example:
+            relationships = semantic_model_list_relationships()
+            for rel in relationships:
+                print(rel)
+    """
+    conn_str = get_semantic_model_connection()
+    try:
+        from pyadomd import Pyadomd
+    except ImportError:
+        logging.error("pyadomd is required for semantic model queries. Install with 'pip install pyadomd'.")
+        raise
+
+    query = """
+        SELECT
+            r.FromTableName,
+            r.FromColumnName,
+            r.ToTableName,
+            r.ToColumnName
+        FROM $SYSTEM.TMSCHEMA_RELATIONSHIPS r
+    """
+    try:
+        with Pyadomd(conn_str) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query)
+                results = [tuple(row) for row in cur.fetchall()]
+                logging.info(f"Semantic model relationships query returned {len(results)} rows.")
+                return results
+    except Exception as e:
+        logging.error(f"Error executing semantic model relationships query: {e}")
+        raise
+
     # Initialize credential once (it handles all caching internally)
     if _credential is None:
+        logging.info("Initializing Azure DefaultAzureCredential...")
         _credential = DefaultAzureCredential()
-    
+
     # Get access token (automatically cached and refreshed by azure-identity)
-    # Scope for Azure SQL Database / Fabric SQL Endpoint
-        # Use Azure CLI token explicitly for immediate testing
-        import subprocess, json
+    import subprocess
+    import json
+    try:
+        logging.info("Requesting Azure access token via az CLI...")
         result = subprocess.run([
-            "az", "account", "get-access-token", "--resource", "https://database.windows.net/"
+            "az.cmd", "account", "get-access-token", "--resource", "https://database.windows.net/"
         ], capture_output=True, text=True)
+        logging.debug(f"Subprocess stdout: {result.stdout}")
+        logging.debug(f"Subprocess stderr: {result.stderr}")
         token = json.loads(result.stdout)["accessToken"]
-    
-    # Convert token to bytes for pyodbc
-    token_bytes = token.token.encode("utf-16-le")
-    token_struct = struct.pack(f"<I{len(token_bytes)}s", len(token_bytes), token_bytes)
-    
+        token_bytes = token.encode("utf-16-le")
+        token_struct = struct.pack(f"<I{len(token_bytes)}s", len(token_bytes), token_bytes)
+        logging.info("Successfully obtained access token.")
+    except Exception as e:
+        logging.error(f"Subprocess error obtaining token: {e}")
+        raise
+
     # SQL_COPT_SS_ACCESS_TOKEN attribute for pyodbc
     SQL_COPT_SS_ACCESS_TOKEN = 1256
-    
+
     conn_str = (
         f"Driver={{ODBC Driver 18 for SQL Server}};"
         f"Server={sql_endpoint};"
         f"Database={database};"
         "Encrypt=yes;TrustServerCertificate=no"
     )
-    
+
     conn = pyodbc.connect(conn_str, attrs_before={SQL_COPT_SS_ACCESS_TOKEN: token_struct})
     return conn
 
@@ -76,36 +306,44 @@ def lakehouse_sql_query(query: str, timeout: int = 30) -> List[Tuple]:
     Returns:
         List of tuples containing query results
     """
+    logging.info(f"Executing SQL query: {query[:100]}... (timeout={timeout}s)")
     conn = _get_connection()
     conn.timeout = timeout  # Set connection timeout
     try:
         cursor = conn.cursor()
+        # Set lock timeout to 30 seconds (30000 ms) to avoid long waits
+        cursor.execute("SET LOCK_TIMEOUT 30000;")
         cursor.execute(query)
-        return [tuple(row) for row in cursor.fetchall()]
+        results = [tuple(row) for row in cursor.fetchall()]
+        logging.info(f"Query executed successfully. Returned {len(results)} rows.")
+        return results
+    except Exception as e:
+        logging.error(f"Error executing query: {e}")
+        raise
     finally:
         conn.close()
 
 
-def lakehouse_list_tables() -> List[Tuple[str, str, int]]:
+def lakehouse_list_tables() -> List[Tuple[str, str]]:
     """
-    List all tables in the lakehouse with their schemas and row counts.
+    List all tables in the lakehouse with their schemas only (no row counts).
     
     Returns:
-        List of tuples: (schema_name, table_name, row_count)
+        List of tuples: (schema_name, table_name)
     """
     query = """
         SELECT 
             s.name AS schema_name,
-            t.name AS table_name,
-            SUM(p.rows) AS row_count
+            t.name AS table_name
         FROM sys.tables t
         INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
-        INNER JOIN sys.partitions p ON t.object_id = p.object_id
-        WHERE p.index_id IN (0, 1)  -- heap or clustered index
-        GROUP BY s.name, t.name
         ORDER BY s.name, t.name
     """
-    return lakehouse_sql_query(query)
+    logging.info("Listing all tables in the lakehouse (schema and table name only)...")
+    results = lakehouse_sql_query(query)
+    filtered = [(row[0], row[1]) for row in results]
+    logging.info(f"Found {len(filtered)} tables.")
+    return filtered
 
 
 def lakehouse_describe_table(schema_name: str, table_name: str) -> List[Tuple]:
@@ -192,64 +430,7 @@ def lakehouse_find_relationships() -> List[Tuple[str, str, str, str, str, str]]:
     return lakehouse_sql_query(query)
 
 
-def lakehouse_find_potential_relationships(schema_name: Optional[str] = None) -> List[Tuple[str, str, str, str, str]]:
-    """
-    Find potential relationships between tables based on column naming patterns.
-    This is useful when formal foreign keys aren't defined (common in lakehouses).
-    
-    Looks for columns that end with common suffixes like: Id, ID, Key.
-    Limited to first 20 matches for performance.
-    
-    Args:
-        schema_name: Optional. Limit search to specific schema (e.g., 'dbo', 'sales').
-                     Highly recommended for large databases - 10-100x faster!
-    
-    Note: On large schemas, this can be slow. Recommendations:
-    1. Provide schema_name parameter to limit scope
-    2. Use lakehouse_get_schema_stats() to see which schemas are largest
-    3. Use lakehouse_sql_query() to check specific tables
-    
-    Returns:
-        List of tuples: (table1_schema, table1_name, table2_schema, table2_name, matching_column)
-    """
-    schema_filter = ""
-    if schema_name:
-        schema_filter = f"AND s.name = '{schema_name}'"
-    
-    query = f"""
-        -- Ultra-optimized query with early filtering and limits
-        SELECT TOP 20
-            s1.name AS table1_schema,
-            t1.name AS table1_name,
-            s2.name AS table2_schema,
-            t2.name AS table2_name,
-            c1.name AS matching_column
-        FROM (
-            -- Pre-filter columns to only ID/Key patterns
-            SELECT TOP 500 c.object_id, c.name
-            FROM sys.columns c
-            INNER JOIN sys.tables t ON c.object_id = t.object_id
-            INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
-            WHERE s.name NOT IN ('sys', 'INFORMATION_SCHEMA')
-              {schema_filter}
-              AND (c.name LIKE '%Id' OR c.name LIKE '%ID' OR c.name LIKE '%Key')
-        ) c1
-        INNER JOIN (
-            -- Same pre-filter for second set
-            SELECT TOP 500 c.object_id, c.name
-            FROM sys.columns c
-            INNER JOIN sys.tables t ON c.object_id = t.object_id
-            INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
-            WHERE s.name NOT IN ('sys', 'INFORMATION_SCHEMA')
-              {schema_filter}
-              AND (c.name LIKE '%Id' OR c.name LIKE '%ID' OR c.name LIKE '%Key')
-        ) c2 ON c1.name = c2.name AND c1.object_id < c2.object_id
-        INNER JOIN sys.tables t1 ON c1.object_id = t1.object_id
-        INNER JOIN sys.schemas s1 ON t1.schema_id = s1.schema_id
-        INNER JOIN sys.tables t2 ON c2.object_id = t2.object_id
-        INNER JOIN sys.schemas s2 ON t2.schema_id = s2.schema_id
-    """
-    return lakehouse_sql_query(query, timeout=10)  # 10 second timeout
+## lakehouse_find_potential_relationships removed: semantic model is available
 
 
 def lakehouse_find_primary_keys() -> List[Tuple[str, str, str, int]]:
@@ -284,10 +465,10 @@ def lakehouse_find_primary_keys() -> List[Tuple[str, str, str, int]]:
 def lakehouse_get_schema_stats() -> List[Tuple[str, int, int]]:
     """
     Get statistics about the schema to help diagnose performance issues.
-    Returns count of tables, columns, and potential relationship columns per schema.
+    Returns count of tables and columns per schema.
     
     Returns:
-        List of tuples: (schema_name, table_count, column_count, relationship_column_count)
+        List of tuples: (schema_name, table_count, column_count)
     """
     query = """
         SELECT 
@@ -307,6 +488,11 @@ def lakehouse_get_schema_stats() -> List[Tuple[str, int, int]]:
         GROUP BY s.name
         ORDER BY table_count DESC
     """
-    # Ensure row_count is always an integer (default to 0 if None)
+    # Ensure table_count and column_count are always integers (default to 0 if None)
     results = lakehouse_sql_query(query)
-    return [(schema, table, row_count or 0) for (schema, table, row_count) in results]
+    def safe_int(val):
+        try:
+            return int(val) if val is not None else 0
+        except (ValueError, TypeError):
+            return 0
+    return [(schema, safe_int(table_count), safe_int(column_count)) for (schema, table_count, column_count, *_ ) in results]

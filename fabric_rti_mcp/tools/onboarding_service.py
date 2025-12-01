@@ -411,7 +411,8 @@ def generate_database_guide() -> Dict[str, Any]:
         ORDER BY SUM(p.rows) DESC
     """
     
-    schemas = execute_sql_query(schemas_query)
+    from fabric_rti_mcp.tools.lakehouse_sql_tool import lakehouse_sql_query
+    schemas = lakehouse_sql_query(schemas_query)
     
     schema_info = []
     for schema in schemas:
@@ -427,7 +428,7 @@ def generate_database_guide() -> Dict[str, Any]:
             GROUP BY t.name
             ORDER BY SUM(p.rows) DESC
         """
-        top_tables = execute_sql_query(top_tables_query)
+        top_tables = lakehouse_sql_query(top_tables_query)
         
         schema_info.append({
             'name': schema[0],
